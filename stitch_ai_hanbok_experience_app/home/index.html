@@ -1,0 +1,986 @@
+<!DOCTYPE html><html lang="ko" style=""><head><title class="">1. TripFit 메인 홈 (page1.html)</title>
+<!-- iOS 홈 화면 앱(PWA) 설정 -->
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../app-icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../app-icon/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TripFit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff">
+<meta name="page-id" content="page1.html"><meta name="page-name" content="TripFit 메인 홈"><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-fixed": "#001b3e",
+          "surface-container-high": "#eae7ea",
+          "on-secondary-fixed-variant": "#004882",
+          "error-container": "#ffdad6",
+          "on-secondary-container": "#002d55",
+          "surface-bright": "#fcf8fb",
+          "background": "#f5f5f7",
+          "on-primary-fixed-variant": "#00458e",
+          "secondary-fixed": "#d3e3ff",
+          "surface-tile-dark": "#272729",
+          "on-tertiary-fixed-variant": "#793000",
+          "surface": "#ffffff",
+          "secondary-fixed-dim": "#a3c9ff",
+          "inverse-on-surface": "#f3f0f2",
+          "hairline-translucent": "rgba(210, 210, 215, 0.64)",
+          "surface-pearl": "#fafafc",
+          "on-error": "#ffffff",
+          "on-tertiary": "#ffffff",
+          "surface-black": "#000000",
+          "primary-container": "#0066cc",
+          "surface-tile-dark-alt": "#2a2a2c",
+          "ink-primary": "#1d1d1f",
+          "hairline-light": "#e0e0e0",
+          "on-background": "#1d1d1f",
+          "ink-on-dark": "#ffffff",
+          "outline": "#86868b",
+          "surface-tint": "#0066cc",
+          "focus-indicator": "#0071e3",
+          "canvas-pure": "#ffffff",
+          "canvas-parchment": "#f5f5f7",
+          "on-surface": "#1d1d1f",
+          "on-surface-variant": "#6e6e73",
+          "on-tertiary-container": "#ffe3d6",
+          "tertiary-fixed-dim": "#ffb692",
+          "on-secondary-fixed": "#001c39",
+          "secondary-container": "#2696fe",
+          "on-primary": "#ffffff",
+          "ink-secondary": "#424245",
+          "surface-container": "#f5f5f7",
+          "surface-dim": "#dcd9dc",
+          "inverse-surface": "#303032",
+          "ink-muted": "#86868b",
+          "on-error-container": "#93000a",
+          "surface-container-highest": "#e8e8ed",
+          "on-secondary": "#ffffff",
+          "ink-muted-on-dark": "#cccccc",
+          "tertiary-fixed": "#ffdbcb",
+          "outline-variant": "#d2d2d7",
+          "inverse-primary": "#aac7ff",
+          "tertiary-container": "#af4900",
+          "on-primary-container": "#dfe8ff",
+          "primary": "#0066cc",
+          "tertiary": "#883700",
+          "surface-tile-deep": "#252527",
+          "surface-variant": "#e4e2e4",
+          "primary-fixed-dim": "#aac7ff",
+          "secondary": "#0066cc",
+          "error": "#ba1a1a",
+          "surface-container-lowest": "#ffffff",
+          "hairline-subtle": "rgba(0, 0, 0, 0.08)",
+          "primary-fixed": "#d7e3ff",
+          "surface-container-low": "#fbfbfd",
+          "on-tertiary-fixed": "#341100"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.75rem",
+          "lg": "1.25rem",
+          "xl": "1.5rem",
+          "2xl": "2rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-xxl": "3rem",
+          "space-lg": "1.5rem",
+          "space-section": "3rem",
+          "space-sm": "0.75rem",
+          "margin": "1.25rem",
+          "space-xl": "2rem",
+          "space-xxs": "0.25rem",
+          "space-xs": "0.5rem"
+        },
+        "fontFamily": {
+          "sans": ["-apple-system", "BlinkMacSystemFont", "Inter", "sans-serif"]
+        }
+      }
+    }
+  }
+</script><style>
+@layer base {
+  html, body {
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  body {
+    overscroll-behavior: none;
+    background-color: #f5f5f7;
+  }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+::-webkit-scrollbar { display: none; }
+body {
+  min-height: max(884px, 100dvh);
+}
+</style><!-- 페이지 전환: 하단 탭바로 이동할 때만 탭 순서에 따라 옆으로 슬라이드 (View Transitions, 미지원 브라우저는 들어오는 쪽만 슬라이드) -->
+<style>
+  @view-transition { navigation: auto; }
+  header { view-transition-name: tf-header; }
+  nav.fixed { view-transition-name: tf-tabbar; }
+  ::view-transition-group(tf-header), ::view-transition-group(tf-tabbar) { animation-duration: .2s; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.32, .72, 0, 1); animation-fill-mode: both; }
+  /* 앞으로: 두 화면이 나란히 붙은 채 왼쪽으로 함께 넘어감 (이전 화면 → 왼쪽 밖, 새 화면 ← 오른쪽에서) */
+  html:active-view-transition-type(tf-forward)::view-transition-old(root) { animation-name: tf-push-out; }
+  html:active-view-transition-type(tf-forward)::view-transition-new(root) { animation-name: tf-slide-in; }
+  /* 뒤로: 두 화면이 나란히 붙은 채 오른쪽으로 함께 넘어감 */
+  html:active-view-transition-type(tf-back)::view-transition-old(root) { animation-name: tf-slide-out; }
+  html:active-view-transition-type(tf-back)::view-transition-new(root) { animation-name: tf-pop-in; }
+  @keyframes tf-slide-in { from { transform: translateX(100%); } }
+  @keyframes tf-push-out { to { transform: translateX(-100%); } }
+  @keyframes tf-slide-out { to { transform: translateX(100%); } }
+  @keyframes tf-pop-in { from { transform: translateX(-100%); } }
+  /* 미지원 브라우저용: 새 화면 본문만 옆에서 들어옴 */
+  html.tf-enter-forward main { animation: tf-fb-right .38s cubic-bezier(.32, .72, 0, 1) both; }
+  html.tf-enter-back main { animation: tf-fb-left .38s cubic-bezier(.32, .72, 0, 1) both; }
+  @keyframes tf-fb-right { from { transform: translateX(40px); opacity: 0; } }
+  @keyframes tf-fb-left { from { transform: translateX(-40px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    html.tf-enter-forward main, html.tf-enter-back main { animation: none; }
+  }
+</style>
+<script>
+  (function () {
+    // 하단 탭바로 이동할 때만 탭 순서대로 슬라이드. 그 외 이동(버튼·뒤로 가기·자동 이동)은 전환 없이 바로 바뀜
+    const ORDER = { home: 0, 'ai': 1, map: 2, shop: 3 };
+    const pageOf = (url) => { try { const parts = new URL(url, location.href).pathname.split('/'); return decodeURIComponent(parts[parts.length - 2] || ''); } catch (e) { return ''; } };
+    const KEY = 'tf-nav-dir';
+    const take = () => { try { const v = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); return v; } catch (e) { return null; } };
+
+    // 탭바 링크를 누른 순간 방향을 기록
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('nav.fixed a[href]');
+      if (!a) return;
+      const from = ORDER[pageOf(location.href)], to = ORDER[pageOf(a.href)];
+      if (from === undefined || to === undefined || from === to) return;
+      try { sessionStorage.setItem(KEY, to > from ? 'tf-forward' : 'tf-back'); } catch (err) { /* 무시 */ }
+    }, true);
+
+    // 지원 브라우저: 탭바 이동이면 방향 타입 지정, 아니면 전환 생략
+    window.addEventListener('pageswap', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      let dir = null;
+      try { dir = sessionStorage.getItem(KEY); } catch (err) { /* 무시 */ }
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+    window.addEventListener('pagereveal', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      const dir = take();
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+
+    // 미지원 브라우저: 탭바로 들어온 경우만 본문을 옆에서 슬라이드
+    if (!('CSSViewTransitionRule' in window)) {
+      const dir = take();
+      if (dir === 'tf-forward') document.documentElement.classList.add('tf-enter-forward');
+      if (dir === 'tf-back') document.documentElement.classList.add('tf-enter-back');
+    }
+  })();
+</script>
+</head><body class="bg-[#f5f5f7] text-[#1d1d1f] flex flex-col min-h-screen antialiased" data-page="page1.html"><header class="fixed top-0 w-full z-50 pt-safe bg-white/80 backdrop-blur-xl border-b border-black/[0.06]" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif;"><div class="h-14 px-4 flex items-center justify-between"><div class="flex items-center gap-1.5"><span class="text-[20px] font-semibold tracking-[-0.03em] text-[#1d1d1f] whitespace-nowrap">TripFit</span><button type="button" id="regionBtn" aria-haspopup="listbox" aria-expanded="false" class="flex items-center gap-0.5 px-2.5 py-1 rounded-full bg-black/[0.04] hover:bg-black/[0.08] active:scale-95 transition-all"><span class="text-[12px] text-[#0066cc] font-semibold tracking-tight">경복궁 · 서울</span><span class="material-symbols-outlined text-[15px] text-[#0066cc] transition-transform" id="regionArrow">keyboard_arrow_down</span></button></div><div class="flex items-center gap-1"><button type="button" id="notifBtn" aria-label="알림 (새 알림 있음)" aria-haspopup="dialog" aria-expanded="false" class="relative w-9 h-9 flex items-center justify-center rounded-full text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-black/[0.04] active:scale-95 transition-all"><span class="material-symbols-outlined text-[20px]">notifications</span><span id="notifDot" class="absolute top-[7px] right-[8px] w-[9px] h-[9px] rounded-full bg-[#ff3b30] ring-2 ring-white"></span></button><a href="../profile/index.html" aria-label="내 정보" class="w-9 h-9 flex items-center justify-center rounded-full active:scale-95 transition-transform"><div class="w-7 h-7 rounded-full bg-[#1d1d1f] flex items-center justify-center"><span class="material-symbols-outlined text-white text-[16px]">person</span></div></a></div></div></header><main class="flex flex-col relative w-full pt-14 pb-28 min-h-screen"><div class="flex flex-col w-full">
+<!-- Search & Filter Area -->
+<section class="px-5 pt-3 pb-2">
+<div class="relative flex items-center w-full h-11 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#e0e0e0]/70 px-4 gap-2.5 transition-all focus-within:border-[#0066cc] focus-within:shadow-[0_2px_12px_rgba(0,102,204,0.15)]">
+<span class="material-symbols-outlined text-[19px] text-[#86868b] flex-shrink-0">search</span>
+<input class="w-full bg-transparent text-[14px] text-[#1d1d1f] placeholder:text-[#86868b] outline-none tracking-[-0.01em] border-0 p-0 shadow-none focus:border-0 focus:ring-0 focus:outline-none" placeholder="고궁, 한옥마을, 추천 한복 스타일 검색" type="text">
+<div class="flex items-center gap-1 flex-shrink-0">
+<button aria-label="음성 검색" class="w-7 h-7 rounded-full flex items-center justify-center text-[#86868b] hover:text-[#0066cc] transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+<button aria-label="상세 필터" class="w-7 h-7 rounded-full flex items-center justify-center text-[#86868b] hover:text-[#0066cc] transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Quick Region Chips Carousel -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 pb-1 -mx-5 px-5">
+<button class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-[#0066cc] text-white text-[13px] font-medium shadow-[0_2px_8px_rgba(0,102,204,0.25)] tracking-[-0.01em]">
+        전체
+      </button>
+<button class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white text-[#424245] border border-[#e0e0e0] text-[13px] font-normal hover:bg-[#fafafc] transition-colors tracking-[-0.01em]">
+        경복궁 · 종로
+      </button>
+<button class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white text-[#424245] border border-[#e0e0e0] text-[13px] font-normal hover:bg-[#fafafc] transition-colors tracking-[-0.01em]">
+        북촌 / 서촌
+      </button>
+<button class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white text-[#424245] border border-[#e0e0e0] text-[13px] font-normal hover:bg-[#fafafc] transition-colors tracking-[-0.01em]">
+        전주 한옥마을
+      </button>
+<button class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white text-[#424245] border border-[#e0e0e0] text-[13px] font-normal hover:bg-[#fafafc] transition-colors tracking-[-0.01em]">
+        경주 황리단길
+      </button>
+</div>
+</section>
+<!-- Hero Feature: AI Body & Personal Color Diagnosis Banner (Apple Museum Clean Card) -->
+<section class="px-5 pt-2 pb-3">
+<div class="relative overflow-hidden rounded-2xl bg-white p-5 border border-[#e0e0e0]/60 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
+<div class="relative z-10 flex flex-col gap-3">
+<!-- Badge -->
+<div class="flex items-center gap-1.5 self-start px-2.5 py-0.5 rounded-full bg-[#0066cc]/10">
+<span class="material-symbols-outlined text-[13px] text-[#0066cc]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-[11px] text-[#0066cc] font-semibold tracking-wider">TRIPFIT AI LAB</span>
+</div>
+<div class="flex items-start justify-between gap-4">
+<div class="flex-1">
+<h2 class="text-[23px] font-semibold text-[#1d1d1f] tracking-[-0.02em] leading-[1.28]">
+              3초 만에 찾는<br>나의 인생 한복
+            </h2>
+<p class="text-[13px] text-[#6e6e73] mt-2 leading-[1.5] tracking-[-0.01em]">
+              AI 체형 정밀 분석 &amp; 퍼스널 컬러 진단으로 나에게 가장 어울리는 실루엣과 오방색 조합을 확인하세요.
+            </p>
+</div>
+<!-- Holographic Scan Preview Image -->
+<div class="relative w-24 h-28 rounded-xl overflow-hidden flex-shrink-0 shadow-[0_4px_14px_rgba(0,0,0,0.08)] bg-[#f5f5f7]">
+<img class="w-full h-full object-cover" data-alt="A refined Korean woman dressed in an ethereal pastel hanbok, subtle futuristic facial recognition wireframe mesh overlay softly glowing in celadon jade and coral light, minimalist aesthetic, warm cinematic natural lighting, soft focused hanok courtyard background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn9AiNS5le9PD14-jiEVhc1hWmIMzo6Oj_f71foWG-5JiG2fZLucbddMGCWojXOWjVWQjoxzCK-RwrllM6dqG2vsmwhj5gDeyVW5t2FsMFELydjw66S03z49fNN6D0-X3JMgieVczqoUZc4PW7ac8DeuTVrh_2Sl2NkUmIMI0o40OdSHqEq5NEUO11dW6pVcEUT4kt-_L7YVcpyv1WoAju_8I9Qi55Xv4D9KgkwAizz9lBnTdd3nK0">
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+<div class="absolute bottom-1.5 left-0 right-0 text-center">
+<span class="text-[10px] text-white/90 font-medium tracking-widest uppercase">SCANNING</span>
+</div>
+</div>
+</div>
+<!-- Tags Grid -->
+<div class="flex flex-wrap gap-1.5 pt-0.5">
+<span class="px-2.5 py-1 rounded-full bg-[#f5f5f7] text-[12px] font-medium text-[#424245] tracking-[-0.01em]">
+            # 3D 페이스 스캔
+          </span>
+<span class="px-2.5 py-1 rounded-full bg-[#f5f5f7] text-[12px] font-medium text-[#424245] tracking-[-0.01em]">
+            # 체형 골격 진단
+          </span>
+<span class="px-2.5 py-1 rounded-full bg-[#0066cc]/10 text-[12px] font-medium text-[#0066cc] tracking-[-0.01em]">
+            # 퍼스널컬러 매칭 99.8%
+          </span>
+</div>
+<!-- Call to Action Button: Signature Action Blue Pill -->
+<a href="../ai/index.html" class="mt-1.5 w-full h-[48px] rounded-full bg-[#0066cc] text-white text-[15px] font-medium flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(0,102,204,0.3)] active:scale-[0.99] transition-all hover:bg-[#0052a3]">
+<span class="">AI 진단 시작하기</span>
+<span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Quick Service Utilities (4 Icon Grid - Apple Clean Card Style) -->
+<section class="px-5 py-2">
+<div class="grid grid-cols-4 gap-2.5">
+<button class="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 transition-all text-center">
+<div class="w-11 h-11 rounded-full bg-[#0066cc]/10 flex items-center justify-center text-[#0066cc] mb-1.5">
+<span class="material-symbols-outlined text-[21px]">dry_cleaning</span>
+</div>
+<span class="text-[12px] text-[#1d1d1f] font-medium tracking-[-0.01em]">AI 가상 피팅</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 transition-all text-center">
+<div class="w-11 h-11 rounded-full bg-[#ff9500]/10 flex items-center justify-center text-[#d97706] mb-1.5">
+<span class="material-symbols-outlined text-[21px]">photo_camera</span>
+</div>
+<span class="text-[12px] text-[#1d1d1f] font-medium tracking-[-0.01em]">스냅 작가 예약</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 transition-all text-center">
+<div class="w-11 h-11 rounded-full bg-[#34c759]/10 flex items-center justify-center text-[#15803d] mb-1.5">
+<span class="material-symbols-outlined text-[21px]">confirmation_number</span>
+</div>
+<span class="text-[12px] text-[#1d1d1f] font-medium tracking-[-0.01em]">고궁 프리패스</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 transition-all text-center">
+<div class="w-11 h-11 rounded-full bg-[#5856d6]/10 flex items-center justify-center text-[#4f46e5] mb-1.5">
+<span class="material-symbols-outlined text-[21px]">content_cut</span>
+</div>
+<span class="text-[12px] text-[#1d1d1f] font-medium tracking-[-0.01em]">수선/헤어 무료</span>
+</button>
+</div>
+</section>
+<!-- Today's Recommended Hanbok Styles (Carousel - Museum Photography-first) -->
+<section class="py-3">
+<div class="px-5 flex items-end justify-between mb-2.5">
+<div>
+<span class="text-[11px] text-[#86868b] font-semibold uppercase tracking-wider block mb-0.5">Personalized Collection</span>
+<h3 class="text-[20px] font-semibold text-[#1d1d1f] tracking-[-0.02em]">오늘의 추천 한복 스타일</h3>
+</div>
+<button class="flex items-center gap-0.5 text-[#0066cc] hover:text-[#0052a3] transition-colors">
+<span class="text-[13px] font-medium">더보기</span>
+<span class="material-symbols-outlined text-[15px]">chevron_right</span>
+</button>
+</div>
+<!-- Horizontal Cards Track -->
+<div class="flex gap-3.5 overflow-x-auto no-scrollbar px-5 pb-2">
+<!-- Card 1 -->
+<article class="flex-shrink-0 w-64 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col group">
+<div class="relative h-44 w-full overflow-hidden bg-[#f5f5f7]">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Luxurious celadon jade royal court Dangui hanbok with intricate silver foil patterns, graceful Korean model posing in front of Gyeongbokgung palace stone balustrade, delicate silk textures, soft natural daylight, serene cultural elegance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeEIqZAG5gjDWdOO7Jfe45S4VaVsAoyLxbncAeSAMtdAWqbSVMobdhY_5XU2PpH9T68z1v2lOG0hsdQpnfR4N0WtQKzHgrskSYKOxDBYOadmQL1AR-XlcKOryT6e3ycBF4C4xT3dyK-ANZkV-vO7KHyqe_CQ0_arFYd1XO35znJmT1u4HGDh6_b0-nCMHPAIXvO_Ks6AQiEtah6PtY0d-apijPgmZDAeXGzVcC1f0YRpXM7h7bKqrn">
+<div class="absolute top-2.5 left-2.5">
+<span class="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-medium tracking-[-0.01em]">
+              쿨뮤트 추천
+            </span>
+</div>
+<button aria-label="위시리스트 저장" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-[#1d1d1f] hover:text-[#e11d48] transition-colors">
+<span class="material-symbols-outlined text-[17px]">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col justify-between flex-1">
+<div>
+<div class="flex items-center justify-between text-[#86868b] mb-1">
+<span class="text-[12px]">궁중 예복 컬렉션</span>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px] text-[#ff9500]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[12px] font-semibold text-[#1d1d1f]">4.9</span>
+<span class="text-[11px] text-[#86868b]">(1,240)</span>
+</div>
+</div>
+<h4 class="text-[16px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">청자 옥빛 은박 당의</h4>
+</div>
+<div class="mt-3 flex items-center justify-between pt-2.5 border-t border-[#e0e0e0]/50">
+<div class="flex items-baseline gap-0.5">
+<span class="text-[17px] font-semibold text-[#1d1d1f] tracking-[-0.02em]">₩48,000</span>
+<span class="text-[12px] text-[#86868b]">/일</span>
+</div>
+<button class="px-3.5 py-1.5 rounded-full bg-[#f5f5f7] text-[#0066cc] text-[13px] font-medium hover:bg-[#0066cc] hover:text-white transition-colors">
+              피팅 예약
+            </button>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="flex-shrink-0 w-64 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col group">
+<div class="relative h-44 w-full overflow-hidden bg-[#f5f5f7]">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Soft lavender purple classic pure silk hanbok with flowing chima skirt, soft warm afternoon sunlight filtering through wooden hanok lattice windows, aesthetic high-end Korean editorial photoshoot, elegant posture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3tcHwfSUAC2OT3z5_qatWxyFuFqkDoORs3AzBeBaW9Nj2XUzuos0045C-yv5zWK7c2gAu8VUxT5NPCwOsfX3lltVp325WzEXMpCMC8H27D9NtCqXr6ADBeqxTgDQXD7tk-HHZ5CNmc02hyWR2B68thYyE3Fnmi0RCK2J5p3-Ppm281Aq50Z-1ZpzOCytPq-T9VfcYnRW3hyPhiuleYmAph_wKa6-zC20M8ifXiIERU4AvV4-vLai-">
+<div class="absolute top-2.5 left-2.5">
+<span class="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-medium tracking-[-0.01em]">
+              웜톤 인기
+            </span>
+</div>
+<button aria-label="위시리스트 저장" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-[#1d1d1f] hover:text-[#e11d48] transition-colors">
+<span class="material-symbols-outlined text-[17px]">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col justify-between flex-1">
+<div>
+<div class="flex items-center justify-between text-[#86868b] mb-1">
+<span class="text-[12px]">클래식 전통 라인</span>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px] text-[#ff9500]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[12px] font-semibold text-[#1d1d1f]">4.8</span>
+<span class="text-[11px] text-[#86868b]">(890)</span>
+</div>
+</div>
+<h4 class="text-[16px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">연보라 명주 비단 한복</h4>
+</div>
+<div class="mt-3 flex items-center justify-between pt-2.5 border-t border-[#e0e0e0]/50">
+<div class="flex items-baseline gap-0.5">
+<span class="text-[17px] font-semibold text-[#1d1d1f] tracking-[-0.02em]">₩45,000</span>
+<span class="text-[12px] text-[#86868b]">/일</span>
+</div>
+<button class="px-3.5 py-1.5 rounded-full bg-[#f5f5f7] text-[#0066cc] text-[13px] font-medium hover:bg-[#0066cc] hover:text-white transition-colors">
+              피팅 예약
+            </button>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="flex-shrink-0 w-64 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col group">
+<div class="relative h-44 w-full overflow-hidden bg-[#f5f5f7]">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Modern chic dark charcoal and moonlight navy Cheollik hanbok dress worn by a young Korean model in urban Bukchon Hanok Village, blending contemporary street fashion with Korean historic silhouettes, clean crisp shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUM9vwKz82UoH8Eg_qdm7gQgywEOCkZJmcEtHqOomS8NA_IbHa134r5h1yRmKdooAW59Enf4Vj8nWPrF7QiN44zYPWdczcHvtEdAk4QeClSjKDhCy2DVZ7HN4rksphvYeKdQyhP07tNqp560ZmrwIiKL_smd_zQ6hQMOFUPykjijVUQGW3ExvxhMcX9XWEQZe__fVFVd0hzUsWVyv-Ru_ehcEhjE3Jp3l-5k09XQGsTwW03hfKGp1M">
+<div class="absolute top-2.5 left-2.5">
+<span class="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-medium tracking-[-0.01em]">
+              전통 캐주얼
+            </span>
+</div>
+<button aria-label="위시리스트 저장" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-[#1d1d1f] hover:text-[#e11d48] transition-colors">
+<span class="material-symbols-outlined text-[17px]">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col justify-between flex-1">
+<div>
+<div class="flex items-center justify-between text-[#86868b] mb-1">
+<span class="text-[12px]">모던 개량 한복</span>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px] text-[#ff9500]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[12px] font-semibold text-[#1d1d1f]">4.9</span>
+<span class="text-[11px] text-[#86868b]">(650)</span>
+</div>
+</div>
+<h4 class="text-[16px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">달빛 흑단 모던 철릭</h4>
+</div>
+<div class="mt-3 flex items-center justify-between pt-2.5 border-t border-[#e0e0e0]/50">
+<div class="flex items-baseline gap-0.5">
+<span class="text-[17px] font-semibold text-[#1d1d1f] tracking-[-0.02em]">₩42,000</span>
+<span class="text-[12px] text-[#86868b]">/일</span>
+</div>
+<button class="px-3.5 py-1.5 rounded-full bg-[#f5f5f7] text-[#0066cc] text-[13px] font-medium hover:bg-[#0066cc] hover:text-white transition-colors">
+              피팅 예약
+            </button>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- Popular Travel & Route Highlights Section (Apple List Card Style) -->
+<section class="px-5 py-2 pb-6">
+<div class="flex items-end justify-between mb-2.5">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#0066cc] animate-pulse"></span>
+<span class="text-[11px] text-[#86868b] font-semibold uppercase tracking-wider">LIVE RECOMMENDATION</span>
+</div>
+<h3 class="text-[20px] font-semibold text-[#1d1d1f] tracking-[-0.02em] mt-0.5">실시간 인기 한복 투어 코스</h3>
+</div>
+<span class="text-[12px] text-[#86868b]">실시간 트렌드</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Course Card 1 -->
+<article class="p-3.5 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex gap-3.5 items-center">
+<div class="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#f5f5f7]">
+<div class="w-full h-full bg-cover bg-center" data-location="Gyeongbokgung Palace Hyangwonjeong, Seoul" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFlS8Q_n1JPl2vPTUFKxRuT1REqcmX2ZDZ9fz7Mn0UHRTIRpd_EK5uILLn8yVu3VvZBLOhfxF-RsAX7ETHPLXKCEMyvLQ_iPULKgTU5JfhW9IP9OOnPhgfv2ZZX24_QeB4f4yd56zvZKciAPJCKnF7r8M1ZfeC9-IZdVj6ygiIFqHB7sLnJxSQGiQDezPUYgW-s86gijY1RkmFrqlkPPfPXwh5lRR8hYwTdg5RP590iOg02Bmri5zT')"></div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-medium tracking-wide">
+            BEST
+          </span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1 text-[#0066cc] text-[12px] font-medium mb-0.5">
+<span class="material-symbols-outlined text-[13px]">distance</span>
+<span class="">도보 1.8km · 약 2시간</span>
+</div>
+<h4 class="text-[15px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">
+            경복궁 향원정 &amp; 경회루 골든아워 코스
+          </h4>
+<p class="text-[12px] text-[#6e6e73] truncate mt-0.5">
+            한복 대여점 도보 3분 · 고궁 프리패스 자동 연동
+          </p>
+<div class="flex items-center gap-1.5 mt-2 pt-1 border-t border-[#e0e0e0]/40">
+<span class="px-2 py-0.5 rounded-full bg-[#f5f5f7] text-[#424245] text-[11px] font-medium">
+              포토존 5곳
+            </span>
+<span class="px-2 py-0.5 rounded-full bg-[#ff9500]/10 text-[#d97706] text-[11px] font-medium">
+              노을 스냅 특화
+            </span>
+</div>
+</div>
+</article>
+<!-- Course Card: K-POP 성지 (지도 코스) -->
+<a href="../map/index.html?route=kpop" class="p-3.5 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex gap-3.5 items-center active:scale-[0.99] transition-transform">
+<div class="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#f5f5f7]">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('../map/kpop1.png')"></div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-medium tracking-wide">
+            NEW
+          </span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1 text-[#0066cc] text-[12px] font-medium mb-0.5">
+<span class="material-symbols-outlined text-[13px]">distance</span>
+<span class="">도보 1.5km · 약 2시간 40분</span>
+</div>
+<h4 class="text-[15px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">
+            K-POP 성지 한복 투어
+          </h4>
+<p class="text-[12px] text-[#6e6e73] truncate mt-0.5">
+            아이돌 화보 골목 · K-POP 화보 촬영 한옥 · 포즈 가이드 제공
+          </p>
+<div class="flex items-center gap-1.5 mt-2 pt-1 border-t border-[#e0e0e0]/40">
+<span class="px-2 py-0.5 rounded-full bg-[#f5f5f7] text-[#424245] text-[11px] font-medium">
+              K-POP 성지
+            </span>
+<span class="px-2 py-0.5 rounded-full bg-[#af52de]/10 text-[#8e44ad] text-[11px] font-medium">
+              팬 인증샷 3,410+
+            </span>
+</div>
+</div>
+</a>
+<!-- Course Card 2 -->
+<a href="../map/index.html?route=photo" class="p-3.5 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex gap-3.5 items-center active:scale-[0.99] transition-transform">
+<div class="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#f5f5f7]">
+<div class="w-full h-full bg-cover bg-center" data-location="Jeonju Hanok Village Gyeonggijeon Bamboo Grove, Jeonju" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPMouxW1vt6qgWUvp0fOOa2KF-yAsseykNiq9uWvaCdUlNQLYyXTi15zqfrrvg82OT8FKlPEnIlMCTeua_YShHHmlj3HV-yhqpEdJk8P2u505HPRDlnTAJyYkjO9tI6xhnkMAzqFiqa8917N1IatIQSVlVz9N05CwxDIpd141EiD_3yn2Lu2MkVZzvVDr8JmiziLccsdToOMgsVrltxR1i9wFtJPIeR60hPfCwkfskijopyqfcUa3T')"></div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-medium tracking-wide">
+            HOT
+          </span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1 text-[#0066cc] text-[12px] font-medium mb-0.5">
+<span class="material-symbols-outlined text-[13px]">distance</span>
+<span class="">도보 2.5km · 명소 4곳</span>
+</div>
+<h4 class="text-[15px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">
+            전주 한옥마을 경기전 대나무숲 스냅 투어
+          </h4>
+<p class="text-[12px] text-[#6e6e73] truncate mt-0.5">
+            전통 처마 그늘길 · 인스타 감성 청년몰 카페 연계
+          </p>
+<div class="flex items-center gap-1.5 mt-2 pt-1 border-t border-[#e0e0e0]/40">
+<span class="px-2 py-0.5 rounded-full bg-[#f5f5f7] text-[#424245] text-[11px] font-medium">
+              인생샷 99+
+            </span>
+<span class="px-2 py-0.5 rounded-full bg-[#34c759]/10 text-[#15803d] text-[11px] font-medium">
+              숲길 힐링 코스
+            </span>
+</div>
+</div>
+</a>
+<!-- Course Card: 왕실 역사 코스 (지도 코스) -->
+<a href="../map/index.html?route=royal" class="p-3.5 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex gap-3.5 items-center active:scale-[0.99] transition-transform">
+<div class="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#f5f5f7]">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD24Gyzi1W0GnncQeBY3uJWlPxY8Gv6cc-WEIwi5HR94HhmQsGhLYJACUfQhsp4a9DNY7AARtO3xjsoEKl2a-ZpKWC3eVvDvmcuwt8l1hMHPCz4CLnTiiV1d-GtjIl7mrnptmCT-fYkI67DgrrvjmCouYfahE6O4SYYbdrcqPYpLy0raQgp767SZULeR9DTJFmErXiYD_dnkSEBbdIoNKS9Mzop_1bkL5pYkdISkcxjsd-ahgFr4qtk')"></div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-medium tracking-wide">
+            TOP
+          </span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1 text-[#0066cc] text-[12px] font-medium mb-0.5">
+<span class="material-symbols-outlined text-[13px]">distance</span>
+<span class="">도보 2.2km · 약 2시간 40분</span>
+</div>
+<h4 class="text-[15px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">
+            전주 왕실 역사 코스
+          </h4>
+<p class="text-[12px] text-[#6e6e73] truncate mt-0.5">
+            경기전 대나무숲 · 전주향교 · 오목대 전망 티타임
+          </p>
+<div class="flex items-center gap-1.5 mt-2 pt-1 border-t border-[#e0e0e0]/40">
+<span class="px-2 py-0.5 rounded-full bg-[#f5f5f7] text-[#424245] text-[11px] font-medium">
+              추천 1위 루트
+            </span>
+<span class="px-2 py-0.5 rounded-full bg-[#0066cc]/10 text-[#0066cc] text-[11px] font-medium">
+              역사 스냅 특화
+            </span>
+</div>
+</div>
+</a>
+<!-- Course Card: 최단 도보 (지도 코스) -->
+<a href="../map/index.html?route=short" class="p-3.5 rounded-2xl bg-white border border-[#e0e0e0]/50 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex gap-3.5 items-center active:scale-[0.99] transition-transform">
+<div class="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#f5f5f7]">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlCgFx37WSHYuMl3FRCMP2MEKmACeORYY-ja4TBVWebcgnZjTO3sWAWoB-RuhWIK04jaBf8RUUR38LBM9sLGirdI4YylZoMuftSmJyc1J6xC8Xsv7USg2OCl7gUeuRRep4j15y8OQptlvg5JABD6LyvHRiS32Pkc3tw_LoAZpbKlqmkxbsOUoC16Y0VtIzgTwgPs0tT2_pTItsEpwXfAr4qkf0qNx3PqgKXwPzBDQzaMYiBo8H28Uf')"></div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-medium tracking-wide">
+            EASY
+          </span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1 text-[#0066cc] text-[12px] font-medium mb-0.5">
+<span class="material-symbols-outlined text-[13px]">distance</span>
+<span class="">도보 970m · 약 1시간 35분</span>
+</div>
+<h4 class="text-[15px] font-semibold text-[#1d1d1f] tracking-[-0.015em] truncate">
+            한옥마을 핵심 최단 코스
+          </h4>
+<p class="text-[12px] text-[#6e6e73] truncate mt-0.5">
+            최명희길 한옥골목 · 오목대 쉼터 · 짧게 핵심만
+          </p>
+<div class="flex items-center gap-1.5 mt-2 pt-1 border-t border-[#e0e0e0]/40">
+<span class="px-2 py-0.5 rounded-full bg-[#f5f5f7] text-[#424245] text-[11px] font-medium">
+              가볍게 2시간
+            </span>
+<span class="px-2 py-0.5 rounded-full bg-[#34c759]/10 text-[#15803d] text-[11px] font-medium">
+              초보 여행자 추천
+            </span>
+</div>
+</div>
+</a>
+
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Nav: Apple Frosted Bar with Action Blue Accent -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe px-4 mb-2.5 pointer-events-none">
+  <div class="pointer-events-auto h-16 bg-white/85 backdrop-blur-2xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.05)] border border-[#e0e0e0]/60 flex items-center justify-around px-2 max-w-md mx-auto">
+    <a aria-current="page" class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0066cc] text-white shadow-[0_2px_8px_rgba(0,102,204,0.25)] transition-all" data-path="home" href="../home/index.html"><span class="material-symbols-outlined text-[18px] text-white" style="font-variation-settings: 'FILL' 1;">home</span><span class="text-[11px] font-semibold tracking-[-0.01em] text-white">홈</span></a>
+    <a class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[#86868b] hover:text-[#1d1d1f] transition-all" data-path="ai-scan" href="../ai/index.html"><span class="material-symbols-outlined text-[18px]">auto_awesome</span><span class="text-[11px] font-medium tracking-[-0.01em]">AI 분석</span></a>
+    <a class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[#86868b] hover:text-[#1d1d1f] transition-all" data-path="map" href="../map/index.html"><span class="material-symbols-outlined text-[18px]">explore</span><span class="text-[11px] font-medium tracking-[-0.01em]">지도</span></a>
+    <a class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[#86868b] hover:text-[#1d1d1f] transition-all" data-path="shop" href="../shop/index.html"><span class="material-symbols-outlined text-[18px]">shopping_bag</span><span class="text-[11px] font-medium tracking-[-0.01em]">상품</span></a>
+  </div>
+</nav>
+
+
+<!-- 지역 선택 팝오버 (헤더 '경복궁 · 서울') -->
+<style>
+  #regionPop { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 52px); left: 12px; z-index: 60; width: 236px; padding: 6px; border-radius: 18px; background: rgba(255, 255, 255, .92); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(0, 0, 0, .08); box-shadow: 0 12px 32px rgba(0, 0, 0, .12); opacity: 0; transform: translateY(-6px) scale(.98); transform-origin: 30px 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; }
+  #regionPop.is-open { opacity: 1; transform: none; pointer-events: auto; }
+  #regionPop button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 12px; background: none; text-align: left; cursor: pointer; transition: background-color .15s, transform .12s; }
+  #regionPop button:hover { background: rgba(0, 0, 0, .04); }
+  #regionPop button:active { transform: scale(.98); background: rgba(0, 0, 0, .06); }
+  #regionPop .r-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #f5f5f7; color: #6e6e73; font-size: 17px; }
+  #regionPop .is-current .r-icon { background: rgba(0, 102, 204, .1); color: #0066cc; }
+  #regionPop .r-name { font-size: 14px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.01em; }
+  #regionPop .r-sub { font-size: 11px; color: #86868b; }
+  #regionToast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 90; transform: translate(-50%, -8px); opacity: 0; pointer-events: none; padding: 8px 16px; border-radius: 9999px; background: rgba(29, 29, 31, .9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #fff; font-size: 13px; font-weight: 500; white-space: nowrap; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); transition: opacity .25s, transform .25s; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; }
+  #regionToast.is-show { opacity: 1; transform: translate(-50%, 0); }
+</style>
+<div id="regionPop" role="listbox" aria-label="지역 선택"></div>
+<div id="regionToast" role="status" aria-live="polite"></div>
+<script>
+  (function () {
+    const REGIONS = [
+      { id: 'seoul', name: '서울', sub: '경복궁 · 북촌 한옥마을', icon: 'account_balance' },
+      { id: 'jeonju', name: '전주', sub: '한옥마을 · 경기전', icon: 'holiday_village' },
+      { id: 'gyeongju', name: '경주', sub: '황리단길 · 대릉원', icon: 'temple_buddhist' },
+      { id: 'andong', name: '안동', sub: '하회마을 · 월영교', icon: 'park' },
+    ];
+    const btn = document.getElementById('regionBtn'), pop = document.getElementById('regionPop');
+    const arrow = document.getElementById('regionArrow'), toastEl = document.getElementById('regionToast');
+    if (!btn || !pop) return;
+    // 현재 지역은 헤더 버튼의 data-current 로 정함 (기본: 서울)
+    const currentId = btn.dataset.current || 'seoul';
+    REGIONS.forEach((r) => { r.current = r.id === currentId; });
+
+    pop.innerHTML = REGIONS.map((r) => `
+      <button type="button" role="option" data-region="${r.id}" aria-selected="${!!r.current}" class="${r.current ? 'is-current' : ''}">
+        <span class="r-icon material-symbols-outlined">${r.icon}</span>
+        <span style="display:flex;flex-direction:column;flex:1;min-width:0"><span class="r-name">${r.name}</span><span class="r-sub">${r.sub}</span></span>
+        ${r.current ? '<span class="material-symbols-outlined" style="font-size:18px;color:#0066cc">check</span>' : ''}
+      </button>`).join('');
+
+    function setOpen(open) {
+      pop.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', open);
+      if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
+      if (open) {
+        const r = btn.getBoundingClientRect();
+        pop.style.left = Math.max(12, r.left) + 'px';
+        pop.style.top = (r.bottom + 8) + 'px';
+      }
+    }
+    let toastTimer;
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('is-show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('is-show'), 1800);
+    }
+
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(!pop.classList.contains('is-open')); });
+    pop.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-region]');
+      if (!b) return;
+      const r = REGIONS.find((x) => x.id === b.dataset.region);
+      setOpen(false);
+      if (!r.current) toast(`${r.name} 지역 코스는 곧 열려요`);
+    });
+    document.addEventListener('click', (e) => { if (!pop.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    window.addEventListener('scroll', () => setOpen(false), { passive: true });
+  })();
+</script>
+
+<!-- 하트(위시리스트) · 북마크 토글 -->
+<style>
+  .is-toggled-heart { color: #ff2d55 !important; }
+  .is-toggled-bookmark { color: #0066cc !important; }
+  .toggle-pop { animation: togglePop .32s cubic-bezier(.2, .8, .2, 1.4); }
+  @keyframes togglePop { 0% { transform: scale(1); } 45% { transform: scale(1.3); } 100% { transform: scale(1); } }
+</style>
+<script>
+  (function () {
+    const KINDS = {
+      '위시리스트 저장': { kind: 'heart', on: '위시리스트에 담았어요', off: '위시리스트에서 뺐어요', onLabel: '위시리스트에서 빼기' },
+      '북마크 저장': { kind: 'bookmark', on: '코스를 저장했어요', off: '저장을 취소했어요', onLabel: '북마크 해제' },
+    };
+    const toastEl = document.getElementById('regionToast');
+    let toastTimer;
+    function toast(msg) {
+      if (!toastEl) return;
+      toastEl.textContent = msg;
+      toastEl.classList.add('is-show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('is-show'), 1500);
+    }
+
+    Object.keys(KINDS).forEach((label) => {
+      document.querySelectorAll(`button[aria-label="${label}"]`).forEach((btn) => {
+        const cfg = KINDS[label], icon = btn.querySelector('.material-symbols-outlined');
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', 'false');
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const on = btn.getAttribute('aria-pressed') !== 'true';
+          btn.setAttribute('aria-pressed', on);
+          btn.setAttribute('aria-label', on ? cfg.onLabel : label);
+          btn.classList.toggle('is-toggled-' + cfg.kind, on);
+          if (icon) {
+            icon.style.fontVariationSettings = on ? "'FILL' 1" : "'FILL' 0";
+            icon.classList.remove('toggle-pop'); void icon.offsetWidth; icon.classList.add('toggle-pop');
+          }
+          toast(on ? cfg.on : cfg.off);
+        });
+      });
+    });
+  })();
+</script>
+
+<!-- 알림 팝오버 (헤더 종 아이콘) -->
+<style>
+  #notifPop { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 52px); right: 12px; z-index: 60; width: min(320px, calc(100vw - 24px)); border-radius: 18px; background: rgba(255, 255, 255, .94); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(0, 0, 0, .08); box-shadow: 0 12px 32px rgba(0, 0, 0, .12); opacity: 0; transform: translateY(-6px) scale(.98); transform-origin: calc(100% - 24px) 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; }
+  #notifPop.is-open { opacity: 1; transform: none; pointer-events: auto; }
+  #notifPop .n-item { display: flex; gap: 10px; padding: 11px 14px; border-top: 1px solid rgba(0, 0, 0, .06); text-align: left; width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer; transition: background-color .15s; }
+  #notifPop .n-item:hover { background: rgba(0, 0, 0, .03); }
+  #notifPop .n-item.is-unread { background: rgba(0, 102, 204, .05); }
+  #notifPop .n-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; font-size: 17px; }
+  #notifDot { transition: transform .2s ease, opacity .2s ease; animation: notifPulse 2s ease-in-out infinite; }
+  #notifDot.is-read { transform: scale(0); opacity: 0; animation: none; }
+  @keyframes notifPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, .45); } 50% { box-shadow: 0 0 0 4px rgba(255, 59, 48, 0); } }
+  @media (prefers-reduced-motion: reduce) { #notifDot { animation: none; } }
+</style>
+<div id="notifPop" role="dialog" aria-label="알림"></div>
+<script>
+  (function () {
+    const NOTIFS = [
+      { icon: 'event_available', color: '#0066cc', title: '예약이 확정됐어요', body: '청자 옥빛 은박 당의 · 10월 18일 오전 10:00 픽업', time: '5분 전', href: '../profile/index.html' },
+      { icon: 'auto_awesome', color: '#af52de', title: 'AI 체형 분석 완료', body: '나에게 맞는 실루엣 추천이 업데이트됐어요', time: '1시간 전', href: '../ai/index.html' },
+      { icon: 'redeem', color: '#ff9500', title: '쿠폰이 도착했어요', body: '경복궁 별빛야행 한복 대여 20% 할인 쿠폰', time: '어제', href: '../shop/index.html' },
+    ];
+    const KEY = 'tripfit-notif-read';
+    const btn = document.getElementById('notifBtn'), pop = document.getElementById('notifPop'), dot = document.getElementById('notifDot');
+    if (!btn || !pop) return;
+    let read = false;
+    try { read = localStorage.getItem(KEY) === '1'; } catch (e) { /* 저장 불가 시 매번 새 알림으로 표시 */ }
+
+    function render() {
+      dot.classList.toggle('is-read', read);
+      btn.setAttribute('aria-label', read ? '알림' : '알림 (새 알림 있음)');
+      pop.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px">
+          <span style="font-size:15px;font-weight:600;color:#1d1d1f;letter-spacing:-0.01em">알림</span>
+          <span style="font-size:12px;color:${read ? '#86868b' : '#0066cc'};font-weight:500">${read ? '모두 읽음' : '새 알림 ' + NOTIFS.length + '개'}</span>
+        </div>
+        ${NOTIFS.map((n) => `
+          <a class="n-item ${read ? '' : 'is-unread'}" href="${n.href}" style="text-decoration:none">
+            <span class="n-icon material-symbols-outlined" style="background:${n.color}">${n.icon}</span>
+            <span style="display:flex;flex-direction:column;min-width:0;flex:1">
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:13px;font-weight:600;color:#1d1d1f">${n.title}</span>
+                <span style="font-size:11px;color:#86868b;flex-shrink:0">${n.time}</span>
+              </span>
+              <span style="font-size:12px;color:#6e6e73;line-height:1.35;margin-top:1px">${n.body}</span>
+            </span>
+          </a>`).join('')}`;
+    }
+    function setOpen(open) {
+      pop.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', open);
+      if (open) {
+        const r = btn.getBoundingClientRect();
+        pop.style.top = (r.bottom + 8) + 'px';
+        pop.style.right = Math.max(12, window.innerWidth - r.right) + 'px';
+      } else if (!read) {
+        // 닫을 때 읽음 처리 → 빨간 점 사라짐 (다른 페이지에서도 유지)
+        read = true;
+        try { localStorage.setItem(KEY, '1'); } catch (e) { /* 무시 */ }
+        render();
+      }
+    }
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opening = !pop.classList.contains('is-open');
+      if (opening) { // 지역 목록이 열려 있으면 닫기
+        document.getElementById('regionPop')?.classList.remove('is-open');
+        document.getElementById('regionBtn')?.setAttribute('aria-expanded', 'false');
+        const arrow = document.getElementById('regionArrow'); if (arrow) arrow.style.transform = '';
+      }
+      setOpen(opening);
+    });
+    // 지역 버튼을 누르면 알림 닫기 (지역 버튼은 클릭 전파를 막아 문서 클릭으로는 안 닫힘)
+    document.getElementById('regionBtn')?.addEventListener('click', () => { if (pop.classList.contains('is-open')) setOpen(false); });
+    document.addEventListener('click', (e) => { if (pop.classList.contains('is-open') && !pop.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && pop.classList.contains('is-open')) setOpen(false); });
+    window.addEventListener('scroll', () => { if (pop.classList.contains('is-open')) setOpen(false); }, { passive: true });
+    render();
+  })();
+</script>
+
+<!-- 통합 검색 (검색창을 누르면 열리는 전체 화면 검색) -->
+<style>
+  #searchOverlay { position: fixed; inset: 0; z-index: 65; background: #fff; display: none; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; color: #1d1d1f; }
+  #searchOverlay.is-open { display: flex; animation: srIn .2s ease; }
+  @keyframes srIn { from { opacity: 0; transform: translateY(8px); } }
+  #searchOverlay .sr-top { display: flex; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px; border-bottom: 1px solid rgba(0, 0, 0, .06); }
+  #searchOverlay .sr-field { flex: 1; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 9999px; background: #f5f5f7; }
+  #searchOverlay .sr-field input { flex: 1; min-width: 0; border: 0; outline: none; box-shadow: none; padding: 0; background: transparent; font-size: 15px; color: #1d1d1f; }
+  #searchOverlay .sr-field input::placeholder { color: #86868b; }
+  #searchOverlay .sr-field input::-webkit-search-cancel-button { display: none; }
+  #searchOverlay .sr-cancel { border: 0; background: none; font-size: 15px; color: #0066cc; cursor: pointer; padding: 4px 2px; }
+  #searchOverlay .sr-body { flex: 1; overflow-y: auto; padding: 8px 16px 32px; }
+  #searchOverlay h4 { margin: 18px 0 10px; font-size: 13px; font-weight: 600; color: #86868b; display: flex; justify-content: space-between; align-items: center; }
+  #searchOverlay h4 button { border: 0; background: none; font-size: 12px; color: #86868b; cursor: pointer; }
+  #searchOverlay .sr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  #searchOverlay .sr-chip { display: inline-flex; align-items: center; gap: 4px; padding: 7px 10px 7px 12px; border-radius: 9999px; border: 1px solid #e0e0e0; background: #fff; font-size: 13px; color: #1d1d1f; cursor: pointer; }
+  #searchOverlay .sr-chip .x { font-size: 15px; color: #aeaeb2; }
+  #searchOverlay .sr-rank { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; }
+  #searchOverlay .sr-rank button { display: flex; align-items: center; gap: 10px; padding: 9px 0; border: 0; background: none; text-align: left; font-size: 14px; color: #1d1d1f; cursor: pointer; }
+  #searchOverlay .sr-rank b { width: 16px; color: #0066cc; font-weight: 700; font-size: 14px; }
+  #searchOverlay .sr-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 0; border: 0; background: none; text-align: left; cursor: pointer; text-decoration: none; color: inherit; border-bottom: 1px solid rgba(0, 0, 0, .05); }
+  #searchOverlay .sr-item:active { opacity: .6; }
+  #searchOverlay .sr-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+  #searchOverlay .sr-title { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  #searchOverlay .sr-sub { font-size: 12px; color: #86868b; margin-top: 1px; }
+  #searchOverlay mark { background: none; color: #0066cc; font-weight: 600; }
+  #searchOverlay .sr-badge { margin-left: auto; flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 9999px; background: #f5f5f7; color: #86868b; }
+  #searchOverlay .sr-empty { text-align: center; padding: 56px 0 0; color: #86868b; font-size: 14px; }
+  #searchOverlay .sr-empty .material-symbols-outlined { font-size: 40px; color: #d2d2d7; display: block; margin-bottom: 8px; }
+  #searchToast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 95; transform: translate(-50%, -8px); opacity: 0; pointer-events: none; padding: 8px 16px; border-radius: 9999px; background: rgba(29, 29, 31, .9); color: #fff; font-size: 13px; font-weight: 500; white-space: nowrap; transition: opacity .25s, transform .25s; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; }
+  #searchToast.is-show { opacity: 1; transform: translate(-50%, 0); }
+</style>
+<div id="searchOverlay" role="dialog" aria-modal="true" aria-label="검색">
+  <div class="sr-top">
+    <label class="sr-field">
+      <span class="material-symbols-outlined" style="font-size:19px;color:#86868b">search</span>
+      <input type="search" id="srInput" placeholder="한복, 코스, 장소, 기능 검색" autocomplete="off" enterkeyhint="search" aria-label="검색어">
+      <button type="button" id="srClear" aria-label="검색어 지우기" style="display:none;border:0;background:none;padding:0;cursor:pointer;color:#aeaeb2"><span class="material-symbols-outlined" style="font-size:18px">cancel</span></button>
+    </label>
+    <button type="button" class="sr-cancel" id="srCancel">취소</button>
+  </div>
+  <div class="sr-body" id="srBody"></div>
+</div>
+<div id="searchToast" role="status" aria-live="polite"></div>
+<script>
+  (function () {
+    const MAP = '../map/index.html', SHOP = '../shop/index.html', HOME = '../home/index.html';
+    const AI = '../ai/index.html', SCAN = '../scan/index.html', PROFILE = '../profile/index.html';
+    const GROUPS = { item: '한복 · 상품', place: '코스 · 장소', feature: '기능' };
+    const INDEX = [
+      { g: 'item', title: '청자 옥빛 은박 당의', sub: '궁중 예복 · ₩48,000/일 · 쿨뮤트 추천', icon: 'checkroom', color: '#0066cc', href: SHOP, kw: '당의 궁중 예복 청자 옥빛 민트 쿨톤' },
+      { g: 'item', title: '연보라 명주 비단 한복', sub: '전통 한복 · ₩45,000/일 · 웜톤 인기', icon: 'checkroom', color: '#af52de', href: SHOP, kw: '연보라 보라 비단 전통 웜톤 치마' },
+      { g: 'item', title: '달빛 흑단 모던 철릭', sub: '모던 개량 한복 · ₩42,000/일', icon: 'checkroom', color: '#1d1d1f', href: SHOP, kw: '철릭 모던 개량 블랙 검정 남자 남성 캐주얼' },
+      { g: 'item', title: '로열 시그니처: 경복궁 궁궐 풀데이 패키지', sub: '올인원 패키지 · ₩89,000 · 고궁 무료입장', icon: 'redeem', color: '#ff9500', href: SHOP, kw: '패키지 올인원 경복궁 스냅 댕기 풀데이' },
+      { g: 'item', title: '전주 한옥마을 고궁 & 인생샷 스냅 묶음팩', sub: '전주 투어 패키지 · ₩65,000/인', icon: 'redeem', color: '#34c759', href: SHOP, kw: '전주 패키지 스냅 경기전 찻집' },
+      { g: 'item', title: 'BTS 투어 팩: 한복 입고 K-POP 성지 따라 걷기', sub: 'K-POP 팬 투어 · ₩59,000/인 · 인기 급상승', icon: 'redeem', color: '#af52de', href: SHOP, kw: 'bts 방탄 아미 kpop 케이팝 아이돌 투어 팩 패키지 성지 팬' },
+      { g: 'item', title: '경복궁 공주체험 묶음팩', sub: '경복궁 체험 패키지 · ₩69,000/인 · 공주 한복 + 헤어', icon: 'redeem', color: '#ff2d55', href: SHOP, kw: '공주 체험 경복궁 패키지 묶음 커플 친구 2인 댕기 헤어' },
+      { g: 'item', title: '지민 st 블랙 실크 모던 철릭', sub: '셀럽 스타일 · 모던 개량 · ₩52,000/일', icon: 'checkroom', color: '#1d1d1f', href: SHOP, kw: '지민 bts 방탄 셀럽 스타일 철릭 블랙 모던 남자' },
+      { g: 'item', title: '장원영 st 핑크 공주 당의', sub: '셀럽 스타일 · 궁중 예복 · ₩55,000/일', icon: 'checkroom', color: '#ff2d55', href: SHOP, kw: '장원영 아이브 ive 셀럽 스타일 핑크 공주 당의' },
+      { g: 'item', title: '맞춤 제작 청자 옥빛 당의 (구매)', sub: '소장용 한복 · ₩390,000 · 치수 맞춤', icon: 'shopping_bag', color: '#0066cc', href: SHOP, kw: '구매 소장 맞춤 제작 당의 청자' },
+      { g: 'item', title: '흑단 모던 생활한복 셋업 (구매)', sub: '데일리 한복 · ₩129,000 · 무료배송', icon: 'shopping_bag', color: '#1d1d1f', href: SHOP, kw: '구매 생활한복 데일리 모던 셋업' },
+      { g: 'item', title: '전주 수제 초코파이 6입', sub: '지역 굿즈 · 전주 명물 · ₩15,000', icon: 'cookie', color: '#8b5a2b', href: SHOP, kw: '굿즈 기념품 전주 초코파이 선물 간식' },
+      { g: 'item', title: '오방색 노리개 키링', sub: '지역 굿즈 · 한복 소품 · ₩12,000', icon: 'local_florist', color: '#af52de', href: SHOP, kw: '굿즈 기념품 노리개 키링 오방색 소품' },
+      { g: 'item', title: '근정전 미니어처 마그넷', sub: '지역 굿즈 · 궁궐 굿즈 · ₩8,500', icon: 'temple_buddhist', color: '#1d1d1f', href: SHOP, kw: '굿즈 기념품 경복궁 근정전 마그넷 서울' },
+      { g: 'item', title: '한복 종일 대여 + 패스트트랙 + 스냅 60분', sub: '얼리버드 묶음 특가 · ₩99,000 (25% OFF)', icon: 'local_offer', color: '#ff3b30', href: SHOP, kw: '특가 할인 얼리버드 패스트트랙 스냅 촬영 사진' },
+      { g: 'place', title: '경복궁 향원정 & 경회루 골든아워 코스', sub: '서울 · 도보 1.8km · 약 2시간', icon: 'account_balance', color: '#0066cc', href: HOME, kw: '경복궁 서울 향원정 경회루 노을 야간 고궁' },
+      { g: 'place', title: '전주 한옥마을 경기전 대나무숲 스냅 투어', sub: '전주 · 도보 2.5km · 명소 4곳', icon: 'route', color: '#ff2d55', href: MAP + '?route=photo', kw: '전주 한옥마을 경기전 대나무 스냅 인생샷' },
+      { g: 'place', title: '왕실 역사 코스', sub: '전주 지도 코스 · 추천 1위', icon: 'route', color: '#0066cc', href: MAP + '?route=royal', kw: '왕실 역사 전주 코스 추천' },
+      { g: 'place', title: '최단 도보 코스', sub: '전주 지도 코스 · 가볍게 2시간', icon: 'route', color: '#34c759', href: MAP + '?route=short', kw: '최단 도보 짧은 전주 코스' },
+      { g: 'place', title: '경기전 대나무숲', sub: '전주 · 포토 스팟 · 한복 착용 시 무료입장', icon: 'photo_camera', color: '#ff2d55', href: MAP + '?spot=gyeonggijeon', kw: '경기전 대나무숲 전주 포토' },
+      { g: 'place', title: '전동성당', sub: '전주 · 역사 건축', icon: 'church', color: '#af52de', href: MAP + '?spot=cathedral', kw: '전동성당 성당 전주' },
+      { g: 'place', title: '오목대 쉼터', sub: '전주 · 전망 · 휴식', icon: 'local_cafe', color: '#1d1d1f', href: MAP + '?spot=omokdae', kw: '오목대 전망대 카페 다과 전주' },
+      { g: 'place', title: '자만벽화마을', sub: '전주 · 포토 스팟', icon: 'palette', color: '#34c759', href: MAP + '?spot=jaman', kw: '자만 벽화마을 전주 포토' },
+      { g: 'place', title: '전주향교', sub: '전주 · 문화재 · 은행나무', icon: 'temple_buddhist', color: '#333333', href: MAP + '?spot=hyanggyo', kw: '전주향교 향교 은행나무' },
+      { g: 'place', title: 'K-POP 성지 한복 투어', sub: '전주 · 아이돌 화보 촬영지 따라 걷기', icon: 'route', color: '#af52de', href: MAP + '?route=kpop', kw: 'kpop 케이팝 k-pop 아이돌 성지 bts 방탄 아미 화보 촬영지 팬' },
+      { g: 'place', title: 'K-POP 화보 촬영 한옥', sub: '전주 · K-POP 촬영지 · 한복 착용 추천', icon: 'star', color: '#af52de', href: MAP + '?route=kpop&spot=kpopHanok', kw: 'kpop 아이돌 화보 촬영 한옥 성지 bts 방탄' },
+      { g: 'place', title: '아이돌 화보 골목', sub: '전주 · K-POP 명소 · 인증샷', icon: 'music_note', color: '#5856d6', href: MAP + '?route=kpop&spot=kpopAlley', kw: 'kpop 아이돌 화보 골목 인증샷 성지' },
+      { g: 'place', title: '북촌 한옥마을', sub: '서울 · 곧 오픈', icon: 'holiday_village', color: '#8e8e93', soon: '서울', kw: '북촌 서촌 서울 한옥마을' },
+      { g: 'place', title: '경주 황리단길', sub: '경주 · 곧 오픈', icon: 'temple_buddhist', color: '#8e8e93', soon: '경주', kw: '경주 황리단길 대릉원' },
+      { g: 'place', title: '안동 하회마을', sub: '안동 · 곧 오픈', icon: 'park', color: '#8e8e93', soon: '안동', kw: '안동 하회마을 월영교' },
+      { g: 'feature', title: 'AI 체형 · 퍼스널 컬러 분석', sub: '나에게 어울리는 실루엣 찾기', icon: 'auto_awesome', color: '#af52de', href: AI, kw: 'ai 체형 분석 퍼스널컬러 진단 피팅 가상' },
+      { g: 'feature', title: '체형 스캔 (카메라 촬영)', sub: '얼굴 · 전신 사진, 키 · 성별 입력', icon: 'photo_camera', color: '#30b0c7', href: SCAN, kw: '스캔 카메라 사진 촬영 키 성별 몸무게' },
+      { g: 'feature', title: '전주 코스 지도', sub: '경유지 편집 · 이동 수단 · 예상 비용', icon: 'map', color: '#34c759', href: MAP, kw: '지도 코스 경로 루트 길찾기' },
+      { g: 'feature', title: '내 정보 · 예약 내역', sub: '예약 · 찜 · 쿠폰 · 알림 설정', icon: 'person', color: '#636366', href: PROFILE, kw: '내정보 프로필 예약 찜 쿠폰 계정 설정 마이' },
+    ];
+    const POPULAR = ['경복궁', 'K-POP 성지', '전주 한옥마을', '당의', '스냅', '체형 분석'];
+    const KEY = 'tripfit-recent-search';
+
+    const overlay = document.getElementById('searchOverlay'), input = document.getElementById('srInput');
+    const body = document.getElementById('srBody'), clearBtn = document.getElementById('srClear');
+    const trigger = document.querySelector('main input[placeholder]');
+    if (!overlay || !trigger) return;
+
+    const norm = (s) => s.toLowerCase().replace(/\s+/g, '');
+    const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    function highlight(text, q) {
+      // 공백을 무시하고 일치하는 구간을 강조
+      const t = text, nq = norm(q);
+      if (!nq) return esc(t);
+      const map = []; let compact = '';
+      for (let i = 0; i < t.length; i++) if (!/\s/.test(t[i])) { map.push(i); compact += t[i].toLowerCase(); }
+      const at = compact.indexOf(nq);
+      if (at < 0) return esc(t);
+      const s = map[at], e = map[at + nq.length - 1] + 1;
+      return esc(t.slice(0, s)) + '<mark>' + esc(t.slice(s, e)) + '</mark>' + esc(t.slice(e));
+    }
+    const loadRecent = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+    const saveRecent = (list) => { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 8))); } catch (e) { /* 무시 */ } };
+    function addRecent(q) { q = q.trim(); if (!q) return; saveRecent([q, ...loadRecent().filter((x) => x !== q)]); }
+
+    let toastTimer;
+    function toast(msg) {
+      const t = document.getElementById('searchToast');
+      t.textContent = msg; t.classList.add('is-show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('is-show'), 1800);
+    }
+
+    function renderIdle() {
+      const recent = loadRecent();
+      body.innerHTML = `
+        ${recent.length ? `<h4>최근 검색어<button type="button" data-clear-all>전체 삭제</button></h4>
+        <div class="sr-chips">${recent.map((r) => `<span class="sr-chip" data-q="${esc(r)}">${esc(r)}<span class="x material-symbols-outlined" data-remove="${esc(r)}" role="button" aria-label="${esc(r)} 삭제">close</span></span>`).join('')}</div>` : ''}
+        <h4>인기 검색어</h4>
+        <div class="sr-rank">${POPULAR.map((p, i) => `<button type="button" data-q="${esc(p)}"><b>${i + 1}</b>${esc(p)}</button>`).join('')}</div>`;
+    }
+    function renderResults(q) {
+      const nq = norm(q);
+      const hits = INDEX.filter((it) => norm(it.title + it.sub + it.kw).includes(nq));
+      if (!hits.length) {
+        body.innerHTML = `<div class="sr-empty"><span class="material-symbols-outlined">search_off</span>'${esc(q)}'에 대한 결과가 없어요<br><span style="font-size:12px">다른 검색어나 인기 검색어를 이용해 보세요</span></div>`;
+        return;
+      }
+      body.innerHTML = Object.entries(GROUPS).map(([g, label]) => {
+        const list = hits.filter((h) => h.g === g);
+        if (!list.length) return '';
+        return `<h4>${label} <span style="font-weight:500">${list.length}</span></h4>` + list.map((it) => {
+          const inner = `<span class="sr-icon material-symbols-outlined" style="background:${it.color}14;color:${it.color}">${it.icon}</span>
+            <span style="display:flex;flex-direction:column;min-width:0"><span class="sr-title">${highlight(it.title, q)}</span><span class="sr-sub">${esc(it.sub)}</span></span>
+            ${it.soon ? '<span class="sr-badge">곧 오픈</span>' : '<span class="material-symbols-outlined" style="margin-left:auto;font-size:18px;color:#c7c7cc">chevron_right</span>'}`;
+          return it.soon
+            ? `<button type="button" class="sr-item" data-soon="${it.soon}">${inner}</button>`
+            : `<a class="sr-item" href="${it.href}">${inner}</a>`;
+        }).join('');
+      }).join('');
+    }
+    function render() {
+      const q = input.value.trim();
+      clearBtn.style.display = q ? '' : 'none';
+      if (q) renderResults(q); else renderIdle();
+    }
+
+    function open() {
+      overlay.classList.add('is-open');
+      input.value = '';
+      render();
+      setTimeout(() => input.focus(), 30);
+      trigger.blur();
+    }
+    function close() { overlay.classList.remove('is-open'); }
+
+    trigger.readOnly = true; // 키보드는 검색 화면에서 띄움
+    trigger.style.cursor = 'pointer';
+    ['focus', 'click'].forEach((ev) => trigger.addEventListener(ev, (e) => { e.preventDefault(); if (!overlay.classList.contains('is-open')) open(); }));
+    document.getElementById('srCancel').addEventListener('click', close);
+    clearBtn.addEventListener('click', () => { input.value = ''; render(); input.focus(); });
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+      if (e.key === 'Enter') { e.preventDefault(); addRecent(input.value); input.blur(); }
+    });
+    body.addEventListener('click', (e) => {
+      const rm = e.target.closest('[data-remove]');
+      if (rm) { e.stopPropagation(); saveRecent(loadRecent().filter((x) => x !== rm.dataset.remove)); render(); return; }
+      if (e.target.closest('[data-clear-all]')) { saveRecent([]); render(); return; }
+      const q = e.target.closest('[data-q]');
+      if (q) { input.value = q.dataset.q; addRecent(q.dataset.q); render(); return; }
+      const soon = e.target.closest('[data-soon]');
+      if (soon) { addRecent(input.value); toast(`${soon.dataset.soon} 지역 코스는 곧 열려요`); return; }
+      if (e.target.closest('a.sr-item')) addRecent(input.value);
+    });
+    // 마이크 · 카메라 검색 버튼
+    document.querySelectorAll('main button[aria-label="음성 검색"], main button[aria-label="음성 또는 카메라 검색"]').forEach((b) =>
+      b.addEventListener('click', (e) => { e.stopPropagation(); toast('음성 · 이미지 검색은 준비 중이에요'); }));
+  })();
+</script>
+</body></html>
