@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>7. TripFit 한복 배우기 (learn.html)</title>
+<script src="../i18n.js"></script>
+<!-- iOS 홈 화면 앱(PWA) 설정 -->
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../app-icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../app-icon/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TripFit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; -webkit-font-smoothing: antialiased; background: #f5f5f7; color: #1d1d1f; }
+  body { overscroll-behavior: none; }
+  ::-webkit-scrollbar { display: none; }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+</style>
+<!-- 페이지 전환: 하단 탭바로 이동할 때만 탭 순서에 따라 옆으로 슬라이드 (View Transitions, 미지원 브라우저는 들어오는 쪽만 슬라이드) -->
+<style>
+  @view-transition { navigation: auto; }
+  header { view-transition-name: tf-header; }
+  nav.fixed { view-transition-name: tf-tabbar; }
+  ::view-transition-group(tf-header), ::view-transition-group(tf-tabbar) { animation-duration: .2s; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.32, .72, 0, 1); animation-fill-mode: both; }
+  /* 앞으로: 두 화면이 나란히 붙은 채 왼쪽으로 함께 넘어감 (이전 화면 → 왼쪽 밖, 새 화면 ← 오른쪽에서) */
+  html:active-view-transition-type(tf-forward)::view-transition-old(root) { animation-name: tf-push-out; }
+  html:active-view-transition-type(tf-forward)::view-transition-new(root) { animation-name: tf-slide-in; }
+  /* 뒤로: 두 화면이 나란히 붙은 채 오른쪽으로 함께 넘어감 */
+  html:active-view-transition-type(tf-back)::view-transition-old(root) { animation-name: tf-slide-out; }
+  html:active-view-transition-type(tf-back)::view-transition-new(root) { animation-name: tf-pop-in; }
+  @keyframes tf-slide-in { from { transform: translateX(100%); } }
+  @keyframes tf-push-out { to { transform: translateX(-100%); } }
+  @keyframes tf-slide-out { to { transform: translateX(100%); } }
+  @keyframes tf-pop-in { from { transform: translateX(-100%); } }
+  /* 미지원 브라우저용: 새 화면 본문만 옆에서 들어옴 */
+  html.tf-enter-forward main { animation: tf-fb-right .38s cubic-bezier(.32, .72, 0, 1) both; }
+  html.tf-enter-back main { animation: tf-fb-left .38s cubic-bezier(.32, .72, 0, 1) both; }
+  @keyframes tf-fb-right { from { transform: translateX(40px); opacity: 0; } }
+  @keyframes tf-fb-left { from { transform: translateX(-40px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    html.tf-enter-forward main, html.tf-enter-back main { animation: none; }
+  }
+</style>
+<script>
+  (function () {
+    // 하단 탭바로 이동할 때만 탭 순서대로 슬라이드. 그 외 이동(버튼·뒤로 가기·자동 이동)은 전환 없이 바로 바뀜
+    const ORDER = { home: 0, 'ai': 1, map: 2, shop: 3 };
+    const pageOf = (url) => { try { const parts = new URL(url, location.href).pathname.split('/'); return decodeURIComponent(parts[parts.length - 2] || ''); } catch (e) { return ''; } };
+    const KEY = 'tf-nav-dir';
+    const take = () => { try { const v = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); return v; } catch (e) { return null; } };
+
+    // 탭바 링크를 누른 순간 방향을 기록
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('nav.fixed a[href]');
+      if (!a) return;
+      const from = ORDER[pageOf(location.href)], to = ORDER[pageOf(a.href)];
+      if (from === undefined || to === undefined || from === to) return;
+      try { sessionStorage.setItem(KEY, to > from ? 'tf-forward' : 'tf-back'); } catch (err) { /* 무시 */ }
+    }, true);
+
+    // 지원 브라우저: 탭바 이동이면 방향 타입 지정, 아니면 전환 생략
+    window.addEventListener('pageswap', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      let dir = null;
+      try { dir = sessionStorage.getItem(KEY); } catch (err) { /* 무시 */ }
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+    window.addEventListener('pagereveal', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      const dir = take();
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+
+    // 미지원 브라우저: 탭바로 들어온 경우만 본문을 옆에서 슬라이드
+    if (!('CSSViewTransitionRule' in window)) {
+      const dir = take();
+      if (dir === 'tf-forward') document.documentElement.classList.add('tf-enter-forward');
+      if (dir === 'tf-back') document.documentElement.classList.add('tf-enter-back');
+    }
+  })();
+</script>
+<style>
+  #figInner { position: relative; transform-origin: 0 0; transition: transform .6s cubic-bezier(.22, .8, .2, 1); will-change: transform; --inv: 1; }
+  #zoomOut.is-show { opacity: 1; pointer-events: auto; }
+  .hot { transform: scale(var(--inv)); transition: transform .6s cubic-bezier(.22, .8, .2, 1), background-color .15s; }
+  .hot.is-on { transform: scale(calc(var(--inv) * 1.15)); }
+  .hot { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; border: 2px solid #fff; background: rgba(0, 102, 204, .85); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); cursor: pointer; }
+  .hot::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(0, 102, 204, .5); animation: hotPulse 2s ease-in-out infinite; }
+  .hot.is-on { background: #ff9500; }
+  .hot.is-on::before { border-color: rgba(255, 149, 0, .6); }
+  @keyframes hotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .2; transform: scale(1.25); } }
+  .seg-btn { height: 34px; border-radius: 9999px; font-size: 13px; transition: all .15s; }
+  .step-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .quiz-opt { width: 100%; text-align: left; padding: 12px 14px; border-radius: 14px; border: 1px solid #e0e0e0; background: #fff; font-size: 14px; transition: all .15s; }
+  .quiz-opt:not(:disabled):active { transform: scale(.98); }
+  .quiz-opt.is-right { border: 2px solid #34c759; background: #34c7590f; font-weight: 600; }
+  .quiz-opt.is-wrong { border: 2px solid #ff3b30; background: #ff3b300f; }
+  .badge-pop { animation: badgePop .6s cubic-bezier(.2, .8, .2, 1.5); }
+  @keyframes badgePop { from { transform: scale(.3) rotate(-20deg); opacity: 0; } }
+  .toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 95; transform: translate(-50%, -8px); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+  .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) { .hot::before { animation: none; } #figInner, .hot { transition: none; } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="fixed top-0 w-full z-50 pt-safe bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
+  <div class="h-14 px-2 flex items-center justify-between max-w-md mx-auto">
+    <a href="../home/index.html" id="btnBack" aria-label="뒤로 가기" class="w-10 h-10 flex items-center justify-center rounded-full text-[#1d1d1f] hover:bg-black/[0.04] active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+    </a>
+    <span class="text-[16px] font-semibold tracking-[-0.02em]">한복 배우기</span>
+    <span class="w-10"></span>
+  </div>
+</header>
+
+<main class="pt-[70px] pb-16 px-4 max-w-md mx-auto flex flex-col gap-5">
+
+  <!-- 소개 -->
+  <section class="relative overflow-hidden rounded-[24px] p-5 text-white" style="background:linear-gradient(135deg,#0a5fc4,#2fb4c9)">
+    <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[140px] text-white/10">menu_book</span>
+    <span class="text-[11px] font-semibold tracking-wider text-white/80">HANBOK CULTURE CLASS</span>
+    <h1 class="text-[24px] font-bold tracking-[-0.02em] leading-tight mt-1">한복, 제대로 알고<br>입어 볼까요?</h1>
+    <p class="text-[13px] text-white/85 mt-2 leading-snug">부위별 이름부터 입는 순서, 오방색의 의미까지.<br>5분이면 한복이 훨씬 더 특별해져요.</p>
+    <div class="flex items-center gap-2 mt-4 text-[12px]">
+      <span class="px-2.5 py-1 rounded-full bg-white/20">약 5분</span>
+      <span class="px-2.5 py-1 rounded-full bg-white/20">퀴즈 5문제</span>
+      <span class="px-2.5 py-1 rounded-full bg-white/20" id="badgeState">수료 배지</span>
+    </div>
+  </section>
+
+  <!-- 목차 -->
+  <nav class="grid grid-cols-4 gap-2 text-center" aria-label="목차">
+    <a href="#parts" class="p-2.5 rounded-2xl bg-white border border-black/[0.05] text-[11px] font-medium"><span class="material-symbols-outlined text-[22px] text-[#0066cc] block">checkroom</span>구성</a>
+    <a href="#steps" class="p-2.5 rounded-2xl bg-white border border-black/[0.05] text-[11px] font-medium"><span class="material-symbols-outlined text-[22px] text-[#ff9500] block">format_list_numbered</span>입는 순서</a>
+    <a href="#colors" class="p-2.5 rounded-2xl bg-white border border-black/[0.05] text-[11px] font-medium"><span class="material-symbols-outlined text-[22px] text-[#af52de] block">palette</span>오방색</a>
+    <a href="#quiz" class="p-2.5 rounded-2xl bg-white border border-black/[0.05] text-[11px] font-medium"><span class="material-symbols-outlined text-[22px] text-[#34c759] block">quiz</span>퀴즈</a>
+  </nav>
+
+  <!-- 1. 한복의 구성 -->
+  <section id="parts" class="scroll-mt-20 flex flex-col gap-3 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center justify-between">
+      <h2 class="text-[17px] font-semibold tracking-tight">1. 한복의 구성</h2>
+      <div class="grid grid-cols-2 gap-1 p-1 rounded-full bg-[#f5f5f7] w-[132px]" role="tablist">
+        <button type="button" class="seg-btn" data-gender="f" role="tab">여자</button>
+        <button type="button" class="seg-btn" data-gender="m" role="tab">남자</button>
+      </div>
+    </div>
+    <p class="text-[12px] text-[#86868b] -mt-1">사진 위 번호를 눌러 부위 이름을 알아보세요</p>
+    <div class="flex gap-3 items-start">
+      <div id="hanbokFig" class="relative w-[52%] shrink-0 rounded-2xl overflow-hidden bg-[#eceef0]"><div id="figInner"><img id="hanbokImg" class="w-full block" alt="" src="hanbok-female.jpg"><div id="hotLayer" class="absolute inset-0"></div></div><button type="button" id="zoomOut" aria-label="전체 보기" class="absolute top-2 right-2 h-7 px-2 rounded-full bg-black/55 backdrop-blur text-white text-[11px] font-medium flex items-center gap-0.5 opacity-0 pointer-events-none transition-opacity"><span class="material-symbols-outlined text-[15px]">zoom_out_map</span>전체</button></div>
+      <div class="flex-1 min-w-0 flex flex-col gap-2">
+        <div id="partCard" class="p-3 rounded-2xl bg-[#f5f5f7] min-h-[148px]"></div>
+        <div id="partList" class="flex flex-wrap gap-1.5"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 입는 순서 -->
+  <section id="steps" class="scroll-mt-20 flex flex-col gap-3 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <h2 class="text-[17px] font-semibold tracking-tight">2. 여자 한복 입는 순서</h2>
+    <ol class="flex flex-col gap-0">
+      <li class="flex gap-3 pb-4 relative"><span class="step-dot bg-[#0066cc] text-white z-10">1</span><span class="absolute left-[12px] top-7 bottom-0 w-[2px] bg-[#e5e5ea]"></span><div><b class="text-[14px]">속치마(또는 속바지)를 입어요</b><p class="text-[12px] text-[#6e6e73] mt-0.5 leading-snug">치마가 풍성하고 단정하게 퍼지도록 모양을 잡아 줘요.</p></div></li>
+      <li class="flex gap-3 pb-4 relative"><span class="step-dot bg-[#0066cc] text-white z-10">2</span><span class="absolute left-[12px] top-7 bottom-0 w-[2px] bg-[#e5e5ea]"></span><div><b class="text-[14px]">치마를 가슴 위쪽에 두르고 끈을 묶어요</b><p class="text-[12px] text-[#6e6e73] mt-0.5 leading-snug">치마의 트인 쪽이 뒤로 가게 두르고, 끈은 흘러내리지 않게 단단히 매요.</p></div></li>
+      <li class="flex gap-3 pb-4 relative"><span class="step-dot bg-[#0066cc] text-white z-10">3</span><span class="absolute left-[12px] top-7 bottom-0 w-[2px] bg-[#e5e5ea]"></span><div><b class="text-[14px]">저고리를 입고 깃을 바르게 여며요</b><p class="text-[12px] text-[#6e6e73] mt-0.5 leading-snug">동정이 목에 들뜨지 않고 가지런히 닿는지 확인해요.</p></div></li>
+      <li class="flex gap-3 pb-4 relative"><span class="step-dot bg-[#0066cc] text-white z-10">4</span><span class="absolute left-[12px] top-7 bottom-0 w-[2px] bg-[#e5e5ea]"></span><div><b class="text-[14px]">고름을 매요</b><p class="text-[12px] text-[#6e6e73] mt-0.5 leading-snug">긴 고름으로 고리를 만들어 짧은 고름과 묶고, 긴 쪽이 아래로 길게 늘어지게 정리해요.</p></div></li>
+      <li class="flex gap-3 relative"><span class="step-dot bg-[#34c759] text-white z-10"><span class="material-symbols-outlined text-[16px]">check</span></span><div><b class="text-[14px]">매무새를 마무리해요</b><p class="text-[12px] text-[#6e6e73] mt-0.5 leading-snug">치마 길이는 발등을 살짝 덮게, 저고리 앞선이 비뚤지 않게 다듬어요.</p></div></li>
+    </ol>
+  </section>
+
+  <!-- 3. 오방색 -->
+  <section id="colors" class="scroll-mt-20 flex flex-col gap-3 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div>
+      <h2 class="text-[17px] font-semibold tracking-tight">3. 오방색(五方色)</h2>
+      <p class="text-[12px] text-[#6e6e73] mt-1 leading-snug">음양오행에서 나온 다섯 가지 기본 색이에요. 다섯 방위와 계절을 뜻하며, 색동저고리나 노리개처럼 한복 곳곳에 담겨 있어요.</p>
+    </div>
+    <div class="grid grid-cols-5 gap-1.5" id="obang"></div>
+    <div id="obangCard" class="p-3 rounded-2xl bg-[#f5f5f7] text-[13px] leading-snug"></div>
+  </section>
+
+  <!-- 4. 고궁 관람 예절 -->
+  <section class="flex flex-col gap-2.5 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <h2 class="text-[17px] font-semibold tracking-tight">4. 한복 입고 고궁 관람 예절</h2>
+    <ul class="flex flex-col gap-2 text-[13px] text-[#424245]">
+      <li class="flex gap-2"><span class="material-symbols-outlined text-[18px] text-[#0066cc]">shield</span><span><b>문화유산을 아껴요</b> · 건물·담장에 기대거나 오르지 말고, 출입 금지 구역은 지켜요.</span></li>
+      <li class="flex gap-2"><span class="material-symbols-outlined text-[18px] text-[#0066cc]">photo_camera</span><span><b>촬영 규정을 확인해요</b> · 상업 촬영이나 일부 장비는 사전 허가가 필요할 수 있어요.</span></li>
+      <li class="flex gap-2"><span class="material-symbols-outlined text-[18px] text-[#0066cc]">groups</span><span><b>다른 관람객을 배려해요</b> · 좁은 길이나 문 앞에서 오래 머무르지 않아요.</span></li>
+      <li class="flex gap-2"><span class="material-symbols-outlined text-[18px] text-[#0066cc]">recycling</span><span><b>쓰레기는 되가져가요</b> · 깨끗한 고궁이 모두의 추억을 지켜요.</span></li>
+    </ul>
+  </section>
+
+  <!-- 5. 퀴즈 -->
+  <section id="quiz" class="scroll-mt-20 flex flex-col gap-3 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center justify-between">
+      <h2 class="text-[17px] font-semibold tracking-tight">5. 한복 퀴즈</h2>
+      <span class="text-[12px] text-[#86868b]" id="quizProg">1 / 5</span>
+    </div>
+    <div class="h-1.5 rounded-full bg-[#f5f5f7] overflow-hidden"><div id="quizBar" class="h-full rounded-full bg-[#34c759] transition-[width] duration-300" style="width:0%"></div></div>
+    <div id="quizBody"></div>
+  </section>
+
+  <p class="text-[11px] text-[#aeaeb2] px-1 leading-snug">학습용 요약 콘텐츠예요. 지역·가문·시대에 따라 한복을 입는 방식과 명칭은 조금씩 다를 수 있어요.</p>
+</main>
+
+<div id="toast" class="toast px-4 py-2 rounded-full bg-[#1d1d1f]/90 backdrop-blur-xl text-white text-[13px] font-medium whitespace-nowrap shadow-lg" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  $('#btnBack').addEventListener('click', (e) => {
+    if (document.referrer && new URL(document.referrer).origin === location.origin) { e.preventDefault(); history.back(); }
+  });
+  let toastTimer;
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('is-show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('is-show'), 1800); }
+
+  // ───── 1. 한복의 구성 (그림 + 번호) ─────
+  // 사진 위 부위 위치(가로 %, 세로 %)
+  const PHOTO = { f: 'hanbok-female.jpg', m: 'hanbok-male.jpg' };
+  const ALT = { f: '분홍 치마와 미색 저고리를 입은 여자 한복', m: '회색 조끼와 바지를 입은 남자 한복' };
+  const PARTS = {
+    f: [
+      { id: 'jeogori', name: '저고리', x: 61, y: 26, desc: '상체에 입는 짧은 윗옷이에요. 시대에 따라 길이와 품이 달라졌고, 지금의 짧은 저고리는 조선 후기에 자리 잡은 모양이에요.' },
+      { id: 'dongjeong', name: '동정', x: 47, y: 17.5, desc: '깃 위에 덧대는 흰 헝겊이에요. 얼굴을 환하게 보이게 하고, 깃이 더러워지는 것을 막아 줘요.' },
+      { id: 'git', name: '깃', x: 58.5, y: 19, desc: '목둘레를 감싸 앞으로 여미는 띠 모양 부분이에요. 깃의 곡선이 한복 윗옷의 인상을 좌우해요.' },
+      { id: 'goreum', name: '고름', x: 45, y: 41, desc: '저고리 앞을 여며 매는 끈이에요. 긴 고름과 짧은 고름을 묶으며, 길게 늘어진 고름이 단아한 멋을 더해요.' },
+      { id: 'baerae', name: '소매(배래)', x: 71, y: 33.5, desc: '소매 아랫선의 완만한 곡선을 배래라고 해요. 한복 특유의 부드러운 선을 만들어 주는 부분이에요.' },
+      { id: 'chima', name: '치마', x: 56, y: 71, desc: '가슴 위에서부터 발목까지 감싸는 아래옷이에요. 넓은 치마폭을 둘러 입어 걸을 때 풍성하게 퍼져요.' },
+    ],
+    m: [
+      { id: 'jeogori', name: '저고리', x: 23, y: 30.5, desc: '남자 한복의 윗옷이에요. 여자 저고리보다 길고 품이 넉넉해 활동하기 편해요. 사진에서는 흰 소매 부분이 저고리예요.' },
+      { id: 'dongjeong', name: '동정', x: 47, y: 13, desc: '깃 위에 덧대는 흰 헝겊이에요. 남자 한복에서도 얼굴선을 깔끔하게 정리해 줘요.' },
+      { id: 'goreum', name: '고름', x: 49, y: 27, desc: '옷 앞을 여며 매는 끈이에요. 남자 한복 고름은 비교적 단정하게 매요.' },
+      { id: 'jokki', name: '조끼(덧옷)', x: 68, y: 57, desc: '저고리 위에 덧입는 소매 없는 옷이에요. 길이와 모양에 따라 조끼 · 배자 · 전복 등으로 불러요.' },
+      { id: 'baji', name: '바지', x: 54, y: 74, desc: '통이 넓은 아래옷이에요. 넉넉한 품 덕분에 좌식 생활과 움직임이 편해요.' },
+      { id: 'daenim', name: '대님', x: 40, y: 87, desc: '바지 발목을 감아 묶는 끈이에요. 바짓단을 정리해 걷기 편하게 하고 맵시를 살려 줘요.' },
+    ],
+  };
+  let gender = 'f', partId = 'jeogori', zoomed = false;
+  const ZOOM = 2.2;
+  function applyZoom() {
+    const fig = $('#hanbokFig'), inner = $('#figInner');
+    const W = fig.clientWidth, H = fig.clientHeight;
+    const p = PARTS[gender].find((x) => x.id === partId);
+    if (!zoomed || !p || !W) {
+      inner.style.transform = 'translate(0px, 0px) scale(1)';
+      inner.style.setProperty('--inv', 1);
+      $('#zoomOut').classList.remove('is-show');
+      return;
+    }
+    const px = p.x / 100 * W, py = p.y / 100 * H;
+    const tx = Math.min(0, Math.max(W - W * ZOOM, W / 2 - px * ZOOM));
+    const ty = Math.min(0, Math.max(H - H * ZOOM, H / 2 - py * ZOOM));
+    inner.style.transform = `translate(${tx}px, ${ty}px) scale(${ZOOM})`;
+    inner.style.setProperty('--inv', (1 / ZOOM).toFixed(4));
+    $('#zoomOut').classList.add('is-show');
+  }
+  function renderParts() {
+    document.querySelectorAll('[data-gender]').forEach((b) => {
+      const on = b.dataset.gender === gender;
+      b.className = 'seg-btn ' + (on ? 'bg-white text-[#1d1d1f] font-semibold shadow-sm' : 'text-[#6e6e73] font-medium');
+      b.setAttribute('aria-selected', on);
+    });
+    const parts = PARTS[gender];
+    if (!parts.find((p) => p.id === partId)) partId = parts[0].id;
+    const img = $('#hanbokImg');
+    if (!img.src.endsWith(PHOTO[gender])) img.src = PHOTO[gender];
+    img.alt = ALT[gender];
+    $('#hotLayer').innerHTML = parts.map((p, i) => `<button type="button" class="hot ${p.id === partId ? 'is-on' : ''}" data-part="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${i + 1}. ${p.name}">${i + 1}</button>`).join('');
+    applyZoom();
+    const p = parts.find((x) => x.id === partId), idx = parts.indexOf(p);
+    $('#partCard').innerHTML = `<span class="text-[11px] font-semibold text-[#0066cc]">${idx + 1} / ${parts.length}</span>
+      <div class="text-[18px] font-bold tracking-tight mt-0.5">${p.name}</div>
+      <p class="text-[13px] text-[#424245] leading-snug mt-1">${p.desc}</p>`;
+    $('#partList').innerHTML = parts.map((x, i) => `<button type="button" data-part="${x.id}" class="px-2.5 py-1 rounded-full text-[12px] ${x.id === partId ? 'bg-[#0066cc] text-white font-semibold' : 'bg-white border border-[#e0e0e0] text-[#424245]'}">${i + 1}. ${x.name}</button>`).join('');
+  }
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('[data-gender]'); if (g) { if (gender !== g.dataset.gender) { gender = g.dataset.gender; zoomed = false; } renderParts(); return; }
+    const p = e.target.closest('[data-part]'); if (p) { partId = p.dataset.part; zoomed = true; renderParts(); }
+  });
+
+  $('#zoomOut').addEventListener('click', (e) => { e.stopPropagation(); zoomed = false; applyZoom(); });
+  window.addEventListener('resize', applyZoom);
+
+  // ───── 3. 오방색 ─────
+  const OBANG = [
+    { name: '청(靑)', color: '#1f5fa8', dir: '동쪽', season: '봄', mean: '만물이 생겨나는 기운, 희망과 젊음을 뜻해요.' },
+    { name: '적(赤)', color: '#c8312b', dir: '남쪽', season: '여름', mean: '생명력과 정열을 뜻하며, 나쁜 기운을 막는 색으로도 쓰였어요.' },
+    { name: '황(黃)', color: '#e2b13c', dir: '중앙', season: '-', mean: '세상의 중심을 뜻해, 예부터 귀하게 여긴 색이에요.' },
+    { name: '백(白)', color: '#f4f1ea', dir: '서쪽', season: '가을', mean: '깨끗함과 순수함을 뜻해요. 흰옷을 즐겨 입은 우리 민족과도 닮았어요.' },
+    { name: '흑(黑)', color: '#26262a', dir: '북쪽', season: '겨울', mean: '지혜와 깊이를 뜻하며, 만물이 쉬어 가는 기운을 담고 있어요.' },
+  ];
+  let obang = 0;
+  function renderObang() {
+    $('#obang').innerHTML = OBANG.map((c, i) => `<button type="button" data-obang="${i}" class="flex flex-col items-center gap-1 p-1.5 rounded-xl ${i === obang ? 'bg-[#f5f5f7]' : ''}" aria-pressed="${i === obang}">
+      <span class="w-10 h-10 rounded-full border ${i === obang ? 'ring-2 ring-offset-2 ring-[#0066cc]' : ''}" style="background:${c.color};border-color:rgba(0,0,0,.08)"></span>
+      <span class="text-[11px] font-semibold">${c.name}</span></button>`).join('');
+    const c = OBANG[obang];
+    $('#obangCard').innerHTML = `<div class="flex items-center gap-2 mb-1"><b class="text-[15px]">${c.name}</b><span class="text-[11px] px-2 py-0.5 rounded-full bg-white">방위 · ${c.dir}</span>${c.season !== '-' ? `<span class="text-[11px] px-2 py-0.5 rounded-full bg-white">계절 · ${c.season}</span>` : ''}</div>${c.mean}`;
+  }
+  $('#obang').addEventListener('click', (e) => { const b = e.target.closest('[data-obang]'); if (b) { obang = +b.dataset.obang; renderObang(); } });
+
+  // ───── 5. 퀴즈 ─────
+  const QUIZ = [
+    { q: '깃 위에 덧대어 얼굴을 환하게 보이게 하는 흰 헝겊의 이름은?', a: ['고름', '동정', '끝동', '대님'], c: 1, why: '동정은 깃 위에 덧대는 흰 헝겊으로, 깃이 더러워지는 것도 막아 줘요.' },
+    { q: '저고리 앞을 여며 묶는 끈을 무엇이라고 할까요?', a: ['고름', '댕기', '대님', '노리개'], c: 0, why: '고름은 저고리를 여미는 끈이에요. 대님은 바지 발목을 묶는 끈이에요.' },
+    { q: '오방색 중 "세상의 중심(중앙)"을 뜻하는 색은?', a: ['청색', '적색', '황색', '흑색'], c: 2, why: '황색은 중앙을 뜻해 예부터 귀하게 여긴 색이에요.' },
+    { q: '남자 한복에서 바지 발목을 감아 묶는 끈은?', a: ['고름', '동정', '대님', '끝동'], c: 2, why: '대님은 바짓단을 정리해 걷기 편하게 해 줘요.' },
+    { q: '한복을 입고 고궁을 관람할 때 바른 행동은?', a: ['담장에 올라가 사진 찍기', '출입 금지 구역 들어가기', '건물에 기대 쉬기', '관람 규칙을 지키며 문화유산 아끼기'], c: 3, why: '문화유산은 모두의 것이에요. 관람 규칙을 지켜 함께 지켜 가요.' },
+  ];
+  let qi = 0, score = 0, answered = false;
+  const BADGE_KEY = 'tripfit-learn-badge';
+  function renderQuiz() {
+    $('#quizBar').style.width = (qi / QUIZ.length * 100) + '%';
+    if (qi >= QUIZ.length) {
+      const pass = score === QUIZ.length;
+      if (pass) { try { localStorage.setItem(BADGE_KEY, JSON.stringify({ at: Date.now(), score })); } catch (e) { /* 무시 */ } }
+      $('#quizProg').textContent = `${score} / ${QUIZ.length} 정답`;
+      $('#quizBody').innerHTML = pass
+        ? `<div class="flex flex-col items-center text-center py-3">
+            <div class="badge-pop w-24 h-24 rounded-full flex items-center justify-center text-white shadow-lg" style="background:conic-gradient(#1f5fa8,#c8312b,#e2b13c,#cfcac0,#26262a,#1f5fa8)"><div class="w-[84px] h-[84px] rounded-full bg-white flex items-center justify-center"><span class="material-symbols-outlined text-[44px] text-[#0066cc]" style="font-variation-settings:'FILL' 1">workspace_premium</span></div></div>
+            <b class="text-[18px] mt-3">'한복 문화 지킴이' 수료!</b>
+            <p class="text-[13px] text-[#6e6e73] mt-1">5문제를 모두 맞혔어요. 배지가 내 정보에 저장됐어요.</p>
+            <div class="grid grid-cols-2 gap-2 w-full mt-4">
+              <button type="button" data-retry class="h-11 rounded-full bg-[#f5f5f7] text-[14px] font-medium">다시 풀기</button>
+              <a href="../profile/index.html" class="h-11 rounded-full bg-[#0066cc] text-white text-[14px] font-semibold flex items-center justify-center">배지 보러 가기</a>
+            </div></div>`
+        : `<div class="flex flex-col items-center text-center py-3">
+            <span class="material-symbols-outlined text-[44px] text-[#ff9500]">school</span>
+            <b class="text-[17px] mt-2">${score}문제 맞혔어요</b>
+            <p class="text-[13px] text-[#6e6e73] mt-1">5문제를 모두 맞히면 수료 배지를 받을 수 있어요.<br>위 내용을 한 번 더 읽어 볼까요?</p>
+            <button type="button" data-retry class="mt-4 h-11 px-6 rounded-full bg-[#0066cc] text-white text-[14px] font-semibold">다시 도전하기</button></div>`;
+      renderBadge();
+      return;
+    }
+    const item = QUIZ[qi];
+    answered = false;
+    $('#quizProg').textContent = `${qi + 1} / ${QUIZ.length}`;
+    $('#quizBody').innerHTML = `<p class="text-[15px] font-semibold leading-snug mb-3">Q${qi + 1}. ${item.q}</p>
+      <div class="flex flex-col gap-2">${item.a.map((t, i) => `<button type="button" class="quiz-opt" data-ans="${i}">${t}</button>`).join('')}</div>
+      <div id="quizWhy" class="hidden mt-3 p-3 rounded-2xl bg-[#f5f5f7] text-[13px] leading-snug"></div>
+      <button type="button" id="quizNext" class="hidden w-full h-11 mt-3 rounded-full bg-[#1d1d1f] text-white text-[14px] font-semibold">${qi === QUIZ.length - 1 ? '결과 보기' : '다음 문제'}</button>`;
+  }
+  $('#quizBody').addEventListener('click', (e) => {
+    if (e.target.closest('[data-retry]')) { qi = 0; score = 0; renderQuiz(); return; }
+    if (e.target.closest('#quizNext')) { qi++; renderQuiz(); return; }
+    const b = e.target.closest('[data-ans]');
+    if (!b || answered) return;
+    answered = true;
+    const item = QUIZ[qi], pick = +b.dataset.ans, ok = pick === item.c;
+    if (ok) score++;
+    document.querySelectorAll('[data-ans]').forEach((x) => {
+      x.disabled = true;
+      if (+x.dataset.ans === item.c) x.classList.add('is-right');
+      else if (x === b) x.classList.add('is-wrong');
+    });
+    const why = $('#quizWhy');
+    why.innerHTML = `<b class="${ok ? 'text-[#248a3d]' : 'text-[#ff3b30]'}">${ok ? '정답이에요!' : '아쉬워요'}</b> ${item.why}`;
+    why.classList.remove('hidden');
+    $('#quizNext').classList.remove('hidden');
+  });
+  function renderBadge() {
+    let got = null; try { got = JSON.parse(localStorage.getItem(BADGE_KEY) || 'null'); } catch (e) { /* 무시 */ }
+    $('#badgeState').textContent = got ? '✓ 수료 완료' : '수료 배지';
+  }
+
+  // 다른 화면에서 #quiz 등으로 들어오면 그 위치로
+  renderParts(); renderObang(); renderQuiz(); renderBadge();
+})();
+</script>
+</body>
+</html>

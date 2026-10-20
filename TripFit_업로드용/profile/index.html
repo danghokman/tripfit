@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>5. TripFit 내 정보 (profile.html)</title>
+<script src="../i18n.js"></script>
+<!-- iOS 홈 화면 앱(PWA) 설정 -->
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../app-icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../app-icon/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TripFit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #f5f5f7;
+    color: #1d1d1f;
+  }
+  body { overscroll-behavior: none; }
+  ::-webkit-scrollbar { display: none; }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  .menu-row { width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: none; border: 0; text-align: left; cursor: pointer; transition: background-color .15s; }
+  .menu-row:hover { background: rgba(0, 0, 0, .025); }
+  .menu-row:active { background: rgba(0, 0, 0, .05); }
+  .menu-row + .menu-row { border-top: 1px solid rgba(0, 0, 0, .06); }
+  .menu-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; font-size: 18px; }
+
+  /* iOS 스타일 스위치 */
+  .switch { appearance: none; -webkit-appearance: none; width: 44px; height: 26px; border-radius: 9999px; background: #e5e5ea; position: relative; flex-shrink: 0; cursor: pointer; transition: background-color .2s; margin: 0; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, .2); transition: transform .2s; }
+  .switch:checked { background: #34c759; }
+  .switch:checked::after { transform: translateX(18px); }
+  .switch:focus-visible { outline: 2px solid #0071e3; outline-offset: 2px; }
+
+  .toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 90; transform: translate(-50%, -8px); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+  .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+
+  #logoutDialog { position: fixed; inset: 0; z-index: 80; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(0, 0, 0, .3); }
+  #logoutDialog.is-open { display: flex; }
+</style>
+<!-- 페이지 전환: 하단 탭바로 이동할 때만 탭 순서에 따라 옆으로 슬라이드 (View Transitions, 미지원 브라우저는 들어오는 쪽만 슬라이드) -->
+<style>
+  @view-transition { navigation: auto; }
+  header { view-transition-name: tf-header; }
+  nav.fixed { view-transition-name: tf-tabbar; }
+  ::view-transition-group(tf-header), ::view-transition-group(tf-tabbar) { animation-duration: .2s; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.32, .72, 0, 1); animation-fill-mode: both; }
+  /* 앞으로: 두 화면이 나란히 붙은 채 왼쪽으로 함께 넘어감 (이전 화면 → 왼쪽 밖, 새 화면 ← 오른쪽에서) */
+  html:active-view-transition-type(tf-forward)::view-transition-old(root) { animation-name: tf-push-out; }
+  html:active-view-transition-type(tf-forward)::view-transition-new(root) { animation-name: tf-slide-in; }
+  /* 뒤로: 두 화면이 나란히 붙은 채 오른쪽으로 함께 넘어감 */
+  html:active-view-transition-type(tf-back)::view-transition-old(root) { animation-name: tf-slide-out; }
+  html:active-view-transition-type(tf-back)::view-transition-new(root) { animation-name: tf-pop-in; }
+  @keyframes tf-slide-in { from { transform: translateX(100%); } }
+  @keyframes tf-push-out { to { transform: translateX(-100%); } }
+  @keyframes tf-slide-out { to { transform: translateX(100%); } }
+  @keyframes tf-pop-in { from { transform: translateX(-100%); } }
+  /* 미지원 브라우저용: 새 화면 본문만 옆에서 들어옴 */
+  html.tf-enter-forward main { animation: tf-fb-right .38s cubic-bezier(.32, .72, 0, 1) both; }
+  html.tf-enter-back main { animation: tf-fb-left .38s cubic-bezier(.32, .72, 0, 1) both; }
+  @keyframes tf-fb-right { from { transform: translateX(40px); opacity: 0; } }
+  @keyframes tf-fb-left { from { transform: translateX(-40px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    html.tf-enter-forward main, html.tf-enter-back main { animation: none; }
+  }
+</style>
+<script>
+  (function () {
+    // 하단 탭바로 이동할 때만 탭 순서대로 슬라이드. 그 외 이동(버튼·뒤로 가기·자동 이동)은 전환 없이 바로 바뀜
+    const ORDER = { home: 0, 'ai': 1, map: 2, shop: 3 };
+    const pageOf = (url) => { try { const parts = new URL(url, location.href).pathname.split('/'); return decodeURIComponent(parts[parts.length - 2] || ''); } catch (e) { return ''; } };
+    const KEY = 'tf-nav-dir';
+    const take = () => { try { const v = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); return v; } catch (e) { return null; } };
+
+    // 탭바 링크를 누른 순간 방향을 기록
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('nav.fixed a[href]');
+      if (!a) return;
+      const from = ORDER[pageOf(location.href)], to = ORDER[pageOf(a.href)];
+      if (from === undefined || to === undefined || from === to) return;
+      try { sessionStorage.setItem(KEY, to > from ? 'tf-forward' : 'tf-back'); } catch (err) { /* 무시 */ }
+    }, true);
+
+    // 지원 브라우저: 탭바 이동이면 방향 타입 지정, 아니면 전환 생략
+    window.addEventListener('pageswap', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      let dir = null;
+      try { dir = sessionStorage.getItem(KEY); } catch (err) { /* 무시 */ }
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+    window.addEventListener('pagereveal', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      const dir = take();
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+
+    // 미지원 브라우저: 탭바로 들어온 경우만 본문을 옆에서 슬라이드
+    if (!('CSSViewTransitionRule' in window)) {
+      const dir = take();
+      if (dir === 'tf-forward') document.documentElement.classList.add('tf-enter-forward');
+      if (dir === 'tf-back') document.documentElement.classList.add('tf-enter-back');
+    }
+  })();
+</script>
+</head>
+<body class="min-h-screen">
+
+<!-- Header: 뒤로가기 + 제목 -->
+<header class="fixed top-0 w-full z-50 pt-safe bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
+  <div class="h-14 px-2 flex items-center justify-between max-w-md mx-auto">
+    <a href="../home/index.html" id="btnBack" aria-label="뒤로 가기" class="w-10 h-10 flex items-center justify-center rounded-full text-[#1d1d1f] hover:bg-black/[0.04] active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+    </a>
+    <span class="text-[16px] font-semibold tracking-[-0.02em]">내 정보</span>
+    <button type="button" data-soon="설정" aria-label="설정" class="w-10 h-10 flex items-center justify-center rounded-full text-[#6e6e73] hover:bg-black/[0.04] active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[22px]">settings</span>
+    </button>
+  </div>
+</header>
+
+<main class="pt-[70px] pb-12 px-4 max-w-md mx-auto flex flex-col gap-4">
+
+  <!-- 프로필 카드 -->
+  <section class="flex flex-col gap-4 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center gap-3.5">
+      <div class="relative shrink-0">
+        <div class="w-16 h-16 rounded-full bg-[#1d1d1f] text-white flex items-center justify-center text-[24px] font-semibold tracking-tight">서연</div>
+        <button type="button" data-soon="프로필 사진 변경" aria-label="프로필 사진 변경" class="absolute -right-0.5 -bottom-0.5 w-6 h-6 rounded-full bg-white border border-black/10 flex items-center justify-center text-[#48484a] shadow-sm active:scale-90 transition-transform">
+          <span class="material-symbols-outlined text-[14px]">photo_camera</span>
+        </button>
+      </div>
+      <div class="flex flex-col min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[19px] font-semibold tracking-[-0.02em]">김서연</span>
+          <span class="px-2 py-0.5 rounded-full bg-gradient-to-r from-[#0066cc] to-[#30b0c7] text-white text-[10px] font-semibold tracking-wide">GOLD</span>
+        </div>
+        <span class="text-[13px] text-[#86868b] truncate">seoyeon.kim@tripfit.app</span>
+        <span class="text-[12px] text-[#86868b] mt-0.5">2024년 3월 가입 · 카카오 로그인</span>
+        <a href="../learn/index.html#quiz" id="learnBadge" class="hidden mt-1.5 self-start items-center gap-1 px-2 py-0.5 rounded-full bg-[#0066cc]/10 text-[#0066cc] text-[11px] font-semibold"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1">workspace_premium</span>한복 문화 지킴이</a>
+      </div>
+    </div>
+    <button type="button" data-soon="프로필 수정" class="w-full h-10 rounded-full bg-[#f5f5f7] text-[14px] font-medium text-[#1d1d1f] active:scale-[0.98] transition-transform">프로필 수정</button>
+  </section>
+
+  <!-- 활동 요약 -->
+  <section class="grid grid-cols-3 divide-x divide-black/[0.06] py-3 rounded-[20px] bg-white border border-black/[0.05]">
+    <button type="button" data-bookings class="flex flex-col items-center gap-0.5 py-1 active:bg-black/[0.04] transition-colors">
+      <span class="text-[20px] font-semibold tracking-tight" id="bookCount">2</span><span class="text-[12px] text-[#86868b]">예약</span>
+    </button>
+    <button type="button" data-wish class="flex flex-col items-center gap-0.5 py-1 active:bg-black/[0.04] transition-colors">
+      <span class="text-[20px] font-semibold tracking-tight" id="wishCount">0</span><span class="text-[12px] text-[#86868b]">찜</span>
+    </button>
+    <button type="button" data-soon="쿠폰함" class="flex flex-col items-center gap-0.5 py-1 active:bg-black/[0.04] transition-colors">
+      <span class="text-[20px] font-semibold tracking-tight text-[#0066cc]">3</span><span class="text-[12px] text-[#86868b]">쿠폰</span>
+    </button>
+  </section>
+
+  <!-- 다가오는 예약 -->
+  <section class="flex items-center gap-3 p-3.5 rounded-[20px] bg-[#1d1d1f] text-white" id="upcoming">
+    <div class="w-11 h-11 rounded-[12px] bg-white/10 flex flex-col items-center justify-center shrink-0">
+      <span class="text-[10px] text-white/60 font-medium leading-none">10월</span>
+      <span class="text-[17px] font-semibold leading-tight">18</span>
+    </div>
+    <div class="flex flex-col flex-1 min-w-0">
+      <span class="text-[11px] text-[#5ac8fa] font-semibold">다가오는 예약 · D-5</span>
+      <span class="text-[14px] font-semibold truncate">청자 옥빛 은박 당의 · 경복궁 미담한복</span>
+      <span class="text-[12px] text-white/60">오전 10:00 픽업 · 3시간 대여</span>
+    </div>
+    <button type="button" data-bookings aria-label="예약 상세" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-transform">
+      <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+    </button>
+  </section>
+
+  <!-- 내 체형 분석 -->
+  <section class="flex flex-col gap-3 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold tracking-tight">내 체형 분석</h2>
+      <span class="text-[11px] text-[#86868b]" id="scanDate">최근 분석</span>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+      <div class="flex flex-col items-center gap-0.5 p-2.5 rounded-[14px] bg-[#f5f5f7] text-center">
+        <span class="text-[11px] text-[#86868b]">체형</span>
+        <span class="text-[13px] font-semibold tracking-tight" id="scanType">슬림 내추럴</span>
+      </div>
+      <div class="flex flex-col items-center gap-0.5 p-2.5 rounded-[14px] bg-[#f5f5f7] text-center">
+        <span class="text-[11px] text-[#86868b]">퍼스널 컬러</span>
+        <span class="text-[13px] font-semibold tracking-tight">쿨뮤트</span>
+      </div>
+      <div class="flex flex-col items-center gap-0.5 p-2.5 rounded-[14px] bg-[#f5f5f7] text-center">
+        <span class="text-[11px] text-[#86868b]">키</span>
+        <span class="text-[13px] font-semibold tracking-tight" id="scanHeight">163cm</span>
+      </div>
+    </div>
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-[12px] text-[#6e6e73]">추천 · <span class="text-[#0066cc] font-semibold" id="scanFit">풀 A라인</span></span>
+      <a href="../scan/index.html" class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#e8f2ff] text-[#0066cc] text-[12px] font-semibold active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[15px]">refresh</span>다시 분석하기
+      </a>
+    </div>
+  </section>
+
+  <!-- 메뉴: 내 활동 -->
+  <section class="flex flex-col gap-1.5">
+    <h3 class="px-1 text-[13px] font-semibold text-[#86868b]">내 활동</h3>
+    <div class="rounded-[20px] bg-white border border-black/[0.05] overflow-hidden">
+      <button type="button" class="menu-row" data-bookings><span class="menu-icon material-symbols-outlined" style="background:#0066cc">event_available</span><span class="flex-1 text-[15px]">예약 내역</span><span class="text-[13px] text-[#86868b]" id="bookCount2">2건</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <button type="button" class="menu-row" data-wish><span class="menu-icon material-symbols-outlined" style="background:#ff2d55">favorite</span><span class="flex-1 text-[15px]">찜한 한복</span><span class="text-[13px] text-[#86868b]" id="wishCount2">0</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <button type="button" class="menu-row" data-courses><span class="menu-icon material-symbols-outlined" style="background:#34c759">route</span><span class="flex-1 text-[15px]">저장한 코스</span><span class="text-[13px] text-[#86868b]" id="courseCount">0개</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <a class="menu-row" href="../learn/index.html"><span class="menu-icon material-symbols-outlined" style="background:#0a5fc4">school</span><span class="flex-1 text-[15px]">한복 배우기</span><span class="text-[13px] text-[#86868b]" id="learnState">수료 배지 받기</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></a>
+      <button type="button" class="menu-row" data-soon="리뷰 관리"><span class="menu-icon material-symbols-outlined" style="background:#ff9500">rate_review</span><span class="flex-1 text-[15px]">내 리뷰</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+    </div>
+  </section>
+
+  <!-- 메뉴: 계정 -->
+  <section class="flex flex-col gap-1.5">
+    <h3 class="px-1 text-[13px] font-semibold text-[#86868b]">계정</h3>
+    <div class="rounded-[20px] bg-white border border-black/[0.05] overflow-hidden">
+      <button type="button" class="menu-row" data-soon="개인정보 수정"><span class="menu-icon material-symbols-outlined" style="background:#8e8e93">person</span><span class="flex-1 text-[15px]">개인정보 수정</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <label class="menu-row"><span class="menu-icon material-symbols-outlined" style="background:#ff3b30">notifications</span><span class="flex-1 text-[15px]">예약 · 혜택 알림</span><input type="checkbox" class="switch" id="notifySwitch" checked aria-label="예약 · 혜택 알림"></label>
+      <button type="button" class="menu-row" data-soon="결제 수단"><span class="menu-icon material-symbols-outlined" style="background:#30b0c7">credit_card</span><span class="flex-1 text-[15px]">결제 수단</span><span class="text-[13px] text-[#86868b]">카드 1개</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <button type="button" class="menu-row" data-soon="언어 설정"><span class="menu-icon material-symbols-outlined" style="background:#5856d6">language</span><span class="flex-1 text-[15px]">언어</span><span class="text-[13px] text-[#86868b]">한국어</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+    </div>
+  </section>
+
+  <!-- 메뉴: 고객지원 -->
+  <section class="flex flex-col gap-1.5">
+    <h3 class="px-1 text-[13px] font-semibold text-[#86868b]">고객지원</h3>
+    <div class="rounded-[20px] bg-white border border-black/[0.05] overflow-hidden">
+      <button type="button" class="menu-row" data-soon="공지사항"><span class="menu-icon material-symbols-outlined" style="background:#636366">campaign</span><span class="flex-1 text-[15px]">공지사항</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <button type="button" class="menu-row" data-soon="고객센터"><span class="menu-icon material-symbols-outlined" style="background:#636366">support_agent</span><span class="flex-1 text-[15px]">고객센터</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+      <button type="button" class="menu-row" data-soon="약관 및 정책"><span class="menu-icon material-symbols-outlined" style="background:#636366">description</span><span class="flex-1 text-[15px]">약관 및 정책</span><span class="material-symbols-outlined text-[18px] text-[#c7c7cc]">chevron_right</span></button>
+    </div>
+  </section>
+
+  <button type="button" id="btnLogout" class="h-12 rounded-full bg-white border border-black/[0.05] text-[15px] font-medium text-[#ff3b30] active:scale-[0.98] transition-transform">로그아웃</button>
+  <p class="text-center text-[11px] text-[#aeaeb2]">TripFit 버전 1.0.0</p>
+</main>
+
+<!-- 로그아웃 확인 -->
+<div id="logoutDialog" role="alertdialog" aria-modal="true" aria-labelledby="logoutTitle">
+  <div class="w-full max-w-[280px] rounded-[18px] bg-white/95 backdrop-blur-xl overflow-hidden text-center shadow-xl">
+    <div class="px-5 pt-5 pb-4">
+      <h4 id="logoutTitle" class="text-[17px] font-semibold">로그아웃할까요?</h4>
+      <p class="text-[13px] text-[#6e6e73] mt-1">저장한 코스와 체형 분석 결과는 그대로 남아 있어요.</p>
+    </div>
+    <div class="grid grid-cols-2 border-t border-black/[0.08]">
+      <button type="button" id="logoutCancel" class="h-11 text-[16px] text-[#0066cc] border-r border-black/[0.08] active:bg-black/[0.05]">취소</button>
+      <button type="button" id="logoutOk" class="h-11 text-[16px] font-semibold text-[#ff3b30] active:bg-black/[0.05]">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast px-4 py-2 rounded-full bg-[#1d1d1f]/90 backdrop-blur-xl text-white text-[13px] font-medium whitespace-nowrap shadow-lg" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('is-show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('is-show'), 1800);
+  }
+
+  // 뒤로 가기: 이전 페이지가 있으면 그곳으로, 없으면 홈으로
+  $('#btnBack').addEventListener('click', (e) => {
+    if (document.referrer && new URL(document.referrer).origin === location.origin) {
+      e.preventDefault();
+      history.back();
+    }
+  });
+
+  document.querySelectorAll('[data-soon]').forEach((b) => b.addEventListener('click', () => toast(`${b.dataset.soon} 화면은 준비 중이에요`)));
+
+  $('#notifySwitch').addEventListener('change', (e) => toast(e.target.checked ? '예약 · 혜택 알림을 켰어요' : '예약 · 혜택 알림을 껐어요'));
+
+  const dlg = $('#logoutDialog');
+  $('#btnLogout').addEventListener('click', () => dlg.classList.add('is-open'));
+  $('#logoutCancel').addEventListener('click', () => dlg.classList.remove('is-open'));
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.classList.remove('is-open'); });
+  $('#logoutOk').addEventListener('click', () => { dlg.classList.remove('is-open'); toast('데모 버전이라 로그아웃은 실제로 되지 않아요'); });
+
+  // 체형 스캔 결과가 있으면 반영
+  try {
+    const scan = JSON.parse(localStorage.getItem('tripfit-scan') || 'null');
+    if (scan) {
+      $('#scanType').textContent = scan.type;
+      $('#scanHeight').textContent = scan.height + 'cm';
+      $('#scanFit').textContent = scan.fit;
+      const d = new Date(scan.at);
+      $('#scanDate').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 분석`;
+    }
+  } catch (e) { /* 저장된 결과가 없으면 기본값 유지 */ }
+})();
+</script>
+
+<!-- 예약 내역 시트 -->
+<div id="bookSheet" class="fixed inset-0 z-[70] hidden" role="dialog" aria-modal="true" aria-label="예약 내역">
+  <div class="absolute inset-0 bg-black/30" data-book-close></div>
+  <div class="absolute inset-x-0 bottom-0 max-w-md mx-auto max-h-[80vh] overflow-y-auto bg-white rounded-t-[24px] px-4 pt-2.5 pb-8">
+    <div class="w-9 h-1 rounded-full bg-[#d2d2d7] mx-auto mb-3"></div>
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-[19px] font-bold tracking-[-0.015em]">예약 내역</h3>
+      <button type="button" data-book-close aria-label="닫기" class="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-[#48484a]"><span class="material-symbols-outlined text-[18px]">close</span></button>
+    </div>
+    <div id="bookList" class="flex flex-col gap-2.5"></div>
+  </div>
+</div>
+<script>
+  (function () {
+    const W = ['일', '월', '화', '수', '목', '금', '토'];
+    const won = (n) => '₩' + n.toLocaleString('ko-KR');
+    const KINDS = { rent: '한복 대여', pack: '체험 패키지', course: '여행 코스 패키지' };
+    // 기본 데모 예약 2건 + 예약하기 화면에서 저장한 예약
+    const demo = [
+      { no: 'TF-261018-4821', name: '청자 옥빛 은박 당의', kind: 'rent', place: '경복궁 미담한복 · 현장 수령', date: '2026-10-18T00:00:00', time: '10:00', people: 1, total: 48000, pay: '카드' },
+      { no: 'TF-261102-1937', name: '전주 한옥마을 고궁 & 인생샷 스냅 묶음팩', kind: 'pack', place: '전주 한옥마을 투어 패키지', date: '2026-11-02T00:00:00', time: '13:00', people: 2, total: 123500, pay: '카카오페이' },
+    ];
+    let saved = [];
+    try { saved = JSON.parse(localStorage.getItem('tripfit-bookings') || '[]'); } catch (e) { /* 없으면 데모만 */ }
+    const all = [...saved, ...demo];
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const upcoming = all.filter((b) => new Date(b.date) >= today).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    document.getElementById('bookCount').textContent = all.length;
+    document.getElementById('bookCount2').textContent = all.length + '건';
+
+    // 다가오는 예약 카드: 가장 가까운 예약
+    const next = upcoming[0];
+    if (next) {
+      const d = new Date(next.date), dday = Math.round((d - today) / 86400000);
+      const card = document.getElementById('upcoming');
+      card.querySelector('.text-white\\/60.font-medium, span.text-\\[10px\\]').textContent = (d.getMonth() + 1) + '월';
+      card.querySelector('span.text-\\[17px\\]').textContent = d.getDate();
+      const lines = card.querySelectorAll('.flex-1 > span');
+      lines[0].textContent = `다가오는 예약 · ${dday === 0 ? 'D-DAY' : 'D-' + dday}`;
+      lines[1].textContent = next.name;
+      lines[2].textContent = `${next.time} · ${next.people}명 · ${next.place}`;
+    }
+
+    const sheet = document.getElementById('bookSheet');
+    function render() {
+      document.getElementById('bookList').innerHTML = all.map((b) => {
+        const d = new Date(b.date), past = d < today, isNew = saved.includes(b);
+        return `<div class="p-3.5 rounded-[18px] border border-black/[0.06] ${past ? 'opacity-50' : ''}">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-[#0066cc]">${KINDS[b.kind] || '예약'}${isNew ? ' · <span class="text-[#34c759]">새 예약</span>' : ''}</span>
+            <span class="text-[11px] text-[#86868b]">${b.no}</span>
+          </div>
+          <div class="text-[15px] font-semibold tracking-tight mt-0.5">${b.name}</div>
+          <div class="text-[12px] text-[#86868b] mt-0.5">${d.getMonth() + 1}월 ${d.getDate()}일(${W[d.getDay()]}) ${b.time} · ${b.people}명 · ${b.place}</div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-black/[0.05]">
+            <span class="text-[12px] text-[#86868b]">${b.pay} 결제</span>
+            <span class="text-[15px] font-bold">${won(b.total)}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    document.querySelectorAll('[data-bookings]').forEach((b) => b.addEventListener('click', () => { render(); sheet.classList.remove('hidden'); }));
+    sheet.querySelectorAll('[data-book-close]').forEach((b) => b.addEventListener('click', () => sheet.classList.add('hidden')));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') sheet.classList.add('hidden'); });
+    if (new URLSearchParams(location.search).has('bookings')) { render(); sheet.classList.remove('hidden'); }
+  })();
+</script>
+
+<script>
+  (function () {
+    let got = null;
+    try { got = JSON.parse(localStorage.getItem('tripfit-learn-badge') || 'null'); } catch (e) { /* 없음 */ }
+    if (!got) return;
+    const b = document.getElementById('learnBadge');
+    b.classList.remove('hidden'); b.classList.add('inline-flex');
+    document.getElementById('learnState').textContent = '✓ 수료 완료';
+  })();
+</script>
+
+<!-- 찜한 한복 · 저장한 코스 시트 -->
+<div id="listSheet" class="fixed inset-0 z-[70] hidden" role="dialog" aria-modal="true" aria-labelledby="listTitle">
+  <div class="absolute inset-0 bg-black/30" data-list-close></div>
+  <div class="absolute inset-x-0 bottom-0 max-w-md mx-auto max-h-[80vh] overflow-y-auto bg-white rounded-t-[24px] px-4 pt-2.5 pb-8">
+    <div class="w-9 h-1 rounded-full bg-[#d2d2d7] mx-auto mb-3"></div>
+    <div class="flex items-center justify-between mb-3">
+      <h3 id="listTitle" class="text-[19px] font-bold tracking-[-0.015em]">찜한 한복</h3>
+      <button type="button" data-list-close aria-label="닫기" class="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-[#48484a]"><span class="material-symbols-outlined text-[18px]">close</span></button>
+    </div>
+    <div id="listBody" class="flex flex-col gap-2.5"></div>
+  </div>
+</div>
+<script>
+  (function () {
+    const WISH = 'tripfit-wish', COURSES = 'tripfit-saved-courses';
+    const load = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } };
+    const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 무시 */ } };
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const sheet = document.getElementById('listSheet'), body = document.getElementById('listBody');
+    let mode = 'wish';
+
+    function counts() {
+      const w = load(WISH).length, c = load(COURSES).length;
+      document.getElementById('wishCount').textContent = w;
+      document.getElementById('wishCount2').textContent = w;
+      document.getElementById('courseCount').textContent = c ? c + '개' : '없음';
+    }
+    const empty = (icon, msg, href, cta) => `<div class="py-10 text-center text-[13px] text-[#86868b]"><span class="material-symbols-outlined text-[40px] text-[#d2d2d7] block mb-2">${icon}</span>${msg}<br><a href="${href}" class="inline-block mt-3 px-4 py-2 rounded-full bg-[#f5f5f7] text-[#1d1d1f] text-[13px] font-medium">${cta}</a></div>`;
+    function render() {
+      document.getElementById('listTitle').textContent = mode === 'wish' ? '찜한 한복' : '저장한 코스';
+      if (mode === 'wish') {
+        const list = load(WISH);
+        body.innerHTML = list.length ? list.map((w, i) => `
+          <div class="flex items-center gap-3 p-2.5 rounded-[18px] border border-black/[0.06]">
+            <a href="../shop/index.html?focus=${encodeURIComponent(w.name)}" class="w-16 h-16 rounded-[12px] bg-[#f5f5f7] bg-cover bg-center shrink-0" style="background-image:url('${esc(w.img)}')" aria-label="${esc(w.name)} 보기"></a>
+            <a href="../shop/index.html?focus=${encodeURIComponent(w.name)}" class="flex flex-col flex-1 min-w-0">
+              <span class="text-[14px] font-semibold tracking-tight truncate">${esc(w.name)}</span>
+              <span class="text-[13px] font-bold mt-0.5">${esc(w.price)}</span>
+            </a>
+            <button type="button" data-unwish="${i}" aria-label="찜 해제" class="w-9 h-9 rounded-full flex items-center justify-center text-[#ff2d55] active:scale-90 transition-transform"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'FILL' 1">favorite</span></button>
+          </div>`).join('') : empty('favorite', '아직 찜한 한복이 없어요<br>마음에 드는 한복의 하트를 눌러 보세요', '../shop/index.html', '상품 보러 가기');
+      } else {
+        const list = load(COURSES);
+        const COLORS = { royal: '#0066cc', photo: '#ff2d55', short: '#34c759', kpop: '#af52de' };
+        body.innerHTML = list.length ? list.map((c, i) => `
+          <div class="flex items-center gap-3 p-3 rounded-[18px] border border-black/[0.06]">
+            <a href="../map/index.html?route=${encodeURIComponent(c.route)}" class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-white" style="background:${COLORS[c.route] || '#0066cc'}"><span class="material-symbols-outlined text-[22px]">route</span></a>
+            <a href="../map/index.html?route=${encodeURIComponent(c.route)}" class="flex flex-col flex-1 min-w-0">
+              <span class="text-[11px] font-semibold" style="color:${COLORS[c.route] || '#0066cc'}">${esc(c.label)}</span>
+              <span class="text-[14px] font-semibold tracking-tight truncate">${esc(c.title)}</span>
+              <span class="text-[12px] text-[#86868b]">${esc(c.meta || '전주 한옥마을')}</span>
+            </a>
+            <button type="button" data-uncourse="${i}" aria-label="저장 해제" class="w-9 h-9 rounded-full flex items-center justify-center text-[#0066cc] active:scale-90 transition-transform"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'FILL' 1">bookmark</span></button>
+          </div>`).join('') : empty('bookmark', '아직 저장한 코스가 없어요<br>지도에서 코스 옆 북마크를 눌러 저장해 보세요', '../map/index.html', '지도 보러 가기');
+      }
+    }
+    const open = (m) => { mode = m; render(); sheet.classList.remove('hidden'); };
+    document.querySelectorAll('[data-wish]').forEach((b) => b.addEventListener('click', () => open('wish')));
+    document.querySelectorAll('[data-courses]').forEach((b) => b.addEventListener('click', () => open('courses')));
+    body.addEventListener('click', (e) => {
+      const w = e.target.closest('[data-unwish]'), c = e.target.closest('[data-uncourse]');
+      if (w) { const l = load(WISH); l.splice(+w.dataset.unwish, 1); save(WISH, l); }
+      else if (c) { const l = load(COURSES); l.splice(+c.dataset.uncourse, 1); save(COURSES, l); }
+      else return;
+      render(); counts();
+    });
+    sheet.querySelectorAll('[data-list-close]').forEach((b) => b.addEventListener('click', () => sheet.classList.add('hidden')));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') sheet.classList.add('hidden'); });
+    counts();
+  })();
+</script>
+</body>
+</html>

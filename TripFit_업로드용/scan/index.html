@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>2-1. TripFit AI 체형 스캔 (scan.html)</title>
+<script src="../i18n.js"></script>
+<!-- iOS 홈 화면 앱(PWA) 설정 -->
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../app-icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../app-icon/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TripFit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #f5f5f7;
+    color: #1d1d1f;
+  }
+  body { overscroll-behavior: none; }
+  ::-webkit-scrollbar { display: none; }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  /* 뷰파인더 */
+  #viewfinder video, #viewfinder .shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #viewfinder video.is-mirrored { transform: scaleX(-1); }
+  .guide { position: absolute; inset: 0; pointer-events: none; }
+  .detect-box { position: absolute; border: 2px solid #34c759; border-radius: 14px; opacity: 0; transform: scale(1.08); transition: opacity .3s, transform .3s; }
+  .detect-box.is-on { opacity: 1; transform: none; }
+  .shutter { width: 68px; height: 68px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, .9); padding: 3px; background: transparent; }
+  .shutter span { display: block; width: 100%; height: 100%; border-radius: 50%; background: #fff; transition: transform .12s; }
+  .shutter:active span { transform: scale(.88); }
+  .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  .flash.is-on { animation: flash .35s ease-out; }
+  @keyframes flash { 0% { opacity: .85; } 100% { opacity: 0; } }
+
+  /* 슬라이더 */
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; }
+  input[type=range]:focus { outline: none; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 9999px; background: linear-gradient(to right, #0066cc var(--p, 50%), #e5e5ea var(--p, 50%)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -11px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .22), 0 0 0 .5px rgba(0, 0, 0, .06); }
+  input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(0, 113, 227, .45); }
+  input[type=range]::-moz-range-track { height: 4px; border-radius: 9999px; background: #e5e5ea; }
+  input[type=range]::-moz-range-progress { height: 4px; border-radius: 9999px; background: #0066cc; }
+  input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .22); }
+
+  /* 아바타 */
+  #avatarBody { transform-origin: 60px 250px; transform-box: view-box; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+  #heightLine { transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+
+  /* 분석 오버레이 */
+  #scanOverlay { position: fixed; inset: 0; z-index: 80; background: rgba(0, 0, 0, .92); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  #scanOverlay.is-open { display: flex; }
+  .scan-line { position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #30b0c7, #fff, #30b0c7, transparent); box-shadow: 0 0 18px 4px rgba(48, 176, 199, .7); animation: scan 1.4s ease-in-out infinite alternate; }
+  @keyframes scan { from { top: 4%; } to { top: 94%; } }
+  .landmark { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #34c759; box-shadow: 0 0 0 4px rgba(52, 199, 89, .3); opacity: 0; transform: scale(0); transition: opacity .25s, transform .25s cubic-bezier(.2, .8, .2, 1.5); }
+  .landmark.is-on { opacity: 1; transform: none; }
+  .toast { position: fixed; left: 50%; top: 72px; z-index: 90; transform: translate(-50%, -8px); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+  .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) { .scan-line { animation: none; top: 50%; } }
+</style>
+<!-- 페이지 전환: 하단 탭바로 이동할 때만 탭 순서에 따라 옆으로 슬라이드 (View Transitions, 미지원 브라우저는 들어오는 쪽만 슬라이드) -->
+<style>
+  @view-transition { navigation: auto; }
+  header { view-transition-name: tf-header; }
+  nav.fixed { view-transition-name: tf-tabbar; }
+  ::view-transition-group(tf-header), ::view-transition-group(tf-tabbar) { animation-duration: .2s; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.32, .72, 0, 1); animation-fill-mode: both; }
+  /* 앞으로: 두 화면이 나란히 붙은 채 왼쪽으로 함께 넘어감 (이전 화면 → 왼쪽 밖, 새 화면 ← 오른쪽에서) */
+  html:active-view-transition-type(tf-forward)::view-transition-old(root) { animation-name: tf-push-out; }
+  html:active-view-transition-type(tf-forward)::view-transition-new(root) { animation-name: tf-slide-in; }
+  /* 뒤로: 두 화면이 나란히 붙은 채 오른쪽으로 함께 넘어감 */
+  html:active-view-transition-type(tf-back)::view-transition-old(root) { animation-name: tf-slide-out; }
+  html:active-view-transition-type(tf-back)::view-transition-new(root) { animation-name: tf-pop-in; }
+  @keyframes tf-slide-in { from { transform: translateX(100%); } }
+  @keyframes tf-push-out { to { transform: translateX(-100%); } }
+  @keyframes tf-slide-out { to { transform: translateX(100%); } }
+  @keyframes tf-pop-in { from { transform: translateX(-100%); } }
+  /* 미지원 브라우저용: 새 화면 본문만 옆에서 들어옴 */
+  html.tf-enter-forward main { animation: tf-fb-right .38s cubic-bezier(.32, .72, 0, 1) both; }
+  html.tf-enter-back main { animation: tf-fb-left .38s cubic-bezier(.32, .72, 0, 1) both; }
+  @keyframes tf-fb-right { from { transform: translateX(40px); opacity: 0; } }
+  @keyframes tf-fb-left { from { transform: translateX(-40px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    html.tf-enter-forward main, html.tf-enter-back main { animation: none; }
+  }
+</style>
+<script>
+  (function () {
+    // 하단 탭바로 이동할 때만 탭 순서대로 슬라이드. 그 외 이동(버튼·뒤로 가기·자동 이동)은 전환 없이 바로 바뀜
+    const ORDER = { home: 0, 'ai': 1, map: 2, shop: 3 };
+    const pageOf = (url) => { try { const parts = new URL(url, location.href).pathname.split('/'); return decodeURIComponent(parts[parts.length - 2] || ''); } catch (e) { return ''; } };
+    const KEY = 'tf-nav-dir';
+    const take = () => { try { const v = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); return v; } catch (e) { return null; } };
+
+    // 탭바 링크를 누른 순간 방향을 기록
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('nav.fixed a[href]');
+      if (!a) return;
+      const from = ORDER[pageOf(location.href)], to = ORDER[pageOf(a.href)];
+      if (from === undefined || to === undefined || from === to) return;
+      try { sessionStorage.setItem(KEY, to > from ? 'tf-forward' : 'tf-back'); } catch (err) { /* 무시 */ }
+    }, true);
+
+    // 지원 브라우저: 탭바 이동이면 방향 타입 지정, 아니면 전환 생략
+    window.addEventListener('pageswap', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      let dir = null;
+      try { dir = sessionStorage.getItem(KEY); } catch (err) { /* 무시 */ }
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+    window.addEventListener('pagereveal', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      const dir = take();
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+
+    // 미지원 브라우저: 탭바로 들어온 경우만 본문을 옆에서 슬라이드
+    if (!('CSSViewTransitionRule' in window)) {
+      const dir = take();
+      if (dir === 'tf-forward') document.documentElement.classList.add('tf-enter-forward');
+      if (dir === 'tf-back') document.documentElement.classList.add('tf-enter-back');
+    }
+  })();
+</script>
+</head>
+<body class="min-h-screen">
+
+<!-- Header: 뒤로가기 + 제목 (상세 페이지) -->
+<header class="fixed top-0 w-full z-50 pt-safe bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
+  <div class="h-14 px-2 flex items-center justify-between max-w-md mx-auto">
+    <a href="../ai/index.html" aria-label="AI 분석으로 돌아가기" class="w-10 h-10 flex items-center justify-center rounded-full text-[#1d1d1f] hover:bg-black/[0.04] active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+    </a>
+    <div class="flex flex-col items-center">
+      <span class="text-[16px] font-semibold tracking-[-0.02em]">AI 정밀 체형 스캔</span>
+      <span class="text-[11px] text-[#86868b] font-medium" id="stepLabel">사진 2장 · 신체 정보 입력</span>
+    </div>
+    <button type="button" id="btnHelp" aria-label="촬영 도움말" class="w-10 h-10 flex items-center justify-center rounded-full text-[#6e6e73] hover:bg-black/[0.04] active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[22px]">help</span>
+    </button>
+  </div>
+</header>
+
+<main class="pt-[70px] pb-36 px-4 max-w-md mx-auto flex flex-col gap-4">
+
+  <!-- 촬영 모드 -->
+  <div class="grid grid-cols-2 gap-1 p-1 rounded-full bg-black/[0.05]" role="tablist" aria-label="촬영 모드">
+    <button type="button" role="tab" data-mode="face" class="mode-tab h-9 rounded-full text-[13px] flex items-center justify-center gap-1 transition-all">
+      <span class="material-symbols-outlined text-[17px]">face</span>얼굴 사진
+    </button>
+    <button type="button" role="tab" data-mode="body" class="mode-tab h-9 rounded-full text-[13px] flex items-center justify-center gap-1 transition-all">
+      <span class="material-symbols-outlined text-[17px]">accessibility_new</span>전신 사진
+    </button>
+  </div>
+
+  <!-- 뷰파인더 -->
+  <section id="viewfinder" class="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-[#1c1c1e] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+    <video id="video" playsinline muted autoplay class="hidden"></video>
+    <div id="shot" class="shot hidden bg-no-repeat"></div>
+
+    <!-- 촬영 가이드 -->
+    <svg class="guide" id="guideFace" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><mask id="faceMask"><rect width="300" height="400" fill="#fff"/><ellipse cx="150" cy="180" rx="88" ry="114" fill="#000"/></mask></defs>
+      <rect width="300" height="400" fill="rgba(0,0,0,0.45)" mask="url(#faceMask)"/>
+      <ellipse cx="150" cy="180" rx="88" ry="114" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 7" opacity="0.9"/>
+    </svg>
+    <svg class="guide hidden" id="guideBody" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 7" opacity="0.9" stroke-linejoin="round" stroke-linecap="round">
+        <circle cx="150" cy="62" r="26"/>
+        <path d="M150 90 L150 92 M104 112 Q150 96 196 112 L214 214 L200 218 L186 150 L184 236 L196 372 L166 372 L152 256 L148 256 L134 372 L104 372 L116 236 L114 150 L100 218 L86 214 Z"/>
+      </g>
+      <line x1="20" y1="30" x2="20" y2="378" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <line x1="14" y1="30" x2="26" y2="30" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <line x1="14" y1="378" x2="26" y2="378" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+    </svg>
+    <div id="detectBox" class="detect-box" aria-hidden="true"></div>
+    <div id="flash" class="flash"></div>
+
+    <!-- 상단 안내 -->
+    <div class="absolute top-3 inset-x-3 flex items-center justify-between gap-2 pointer-events-none">
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/55 backdrop-blur-xl text-white border border-white/10">
+        <span class="w-2 h-2 rounded-full bg-[#86868b]" id="statusDot"></span>
+        <span class="text-[12px] font-medium tracking-tight" id="statusText">카메라 꺼짐</span>
+      </div>
+      <div class="px-2.5 py-1.5 rounded-full bg-black/55 backdrop-blur-xl text-white text-[11px] font-medium border border-white/10" id="tipText">정면 · 밝은 곳</div>
+    </div>
+
+    <!-- 카메라 꺼짐 상태 -->
+    <div id="idlePanel" class="absolute inset-x-0 bottom-0 top-1/2 flex flex-col items-center justify-end gap-2 p-4 pb-5">
+      <button type="button" id="btnCamera" class="w-full max-w-[260px] h-12 rounded-full bg-[#0066cc] text-white text-[15px] font-semibold flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(0,102,204,0.4)] active:scale-[0.97] transition-transform">
+        <span class="material-symbols-outlined text-[19px]">photo_camera</span>카메라 켜기
+      </button>
+      <div class="flex items-center gap-2 w-full max-w-[260px]">
+        <button type="button" data-action="upload" class="flex-1 h-10 rounded-full bg-white/15 backdrop-blur-xl text-white text-[13px] font-medium flex items-center justify-center gap-1 border border-white/15 active:scale-[0.97] transition-transform">
+          <span class="material-symbols-outlined text-[17px]">photo_library</span>앨범
+        </button>
+        <button type="button" id="btnSample" class="flex-1 h-10 rounded-full bg-white/15 backdrop-blur-xl text-white text-[13px] font-medium flex items-center justify-center gap-1 border border-white/15 active:scale-[0.97] transition-transform">
+          <span class="material-symbols-outlined text-[17px]">auto_awesome</span>샘플로 체험
+        </button>
+      </div>
+    </div>
+
+    <!-- 카메라 켜짐 상태: 앨범 · 셔터 · 전환 -->
+    <div id="livePanel" class="hidden absolute inset-x-0 bottom-0 px-6 pb-4 pt-10 bg-gradient-to-t from-black/50 to-transparent items-center justify-between">
+      <button type="button" data-action="upload" aria-label="앨범에서 선택" class="w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl text-white flex items-center justify-center active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[21px]">photo_library</span>
+      </button>
+      <button type="button" id="btnShutter" aria-label="촬영" class="shutter"><span></span></button>
+      <button type="button" id="btnFlip" aria-label="카메라 전환" class="w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl text-white flex items-center justify-center active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[21px]">cameraswitch</span>
+      </button>
+    </div>
+
+    <!-- 촬영 완료 상태 -->
+    <div id="donePanel" class="hidden absolute inset-x-0 bottom-0 px-4 pb-4 pt-10 bg-gradient-to-t from-black/55 to-transparent items-center justify-center gap-2">
+      <button type="button" id="btnRetake" class="h-10 px-4 rounded-full bg-white/20 backdrop-blur-xl text-white text-[13px] font-medium flex items-center gap-1 border border-white/15 active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[17px]">refresh</span>다시 찍기
+      </button>
+      <button type="button" id="btnNextMode" class="h-10 px-4 rounded-full bg-white text-[#1d1d1f] text-[13px] font-semibold flex items-center gap-1 active:scale-95 transition-transform">
+        <span id="nextModeLabel">전신 사진 찍기</span><span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+      </button>
+    </div>
+    <input type="file" accept="image/*" id="fileInput" class="hidden">
+  </section>
+
+  <!-- 등록된 사진 -->
+  <section class="grid grid-cols-2 gap-2.5" aria-label="등록된 사진">
+    <button type="button" data-slot="face" class="slot relative flex items-center gap-2.5 p-2 rounded-[18px] bg-white border border-black/[0.06] text-left active:scale-[0.98] transition-all">
+      <div class="slot-thumb w-12 h-12 rounded-[12px] bg-[#f5f5f7] bg-cover bg-center flex items-center justify-center text-[#86868b] shrink-0"><span class="material-symbols-outlined text-[22px]">face</span></div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-[13px] font-semibold tracking-tight">얼굴 사진</span>
+        <span class="slot-state text-[11px] text-[#86868b]">미등록</span>
+      </div>
+    </button>
+    <button type="button" data-slot="body" class="slot relative flex items-center gap-2.5 p-2 rounded-[18px] bg-white border border-black/[0.06] text-left active:scale-[0.98] transition-all">
+      <div class="slot-thumb w-12 h-12 rounded-[12px] bg-[#f5f5f7] bg-cover bg-center flex items-center justify-center text-[#86868b] shrink-0"><span class="material-symbols-outlined text-[22px]">accessibility_new</span></div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-[13px] font-semibold tracking-tight">전신 사진</span>
+        <span class="slot-state text-[11px] text-[#86868b]">미등록</span>
+      </div>
+    </button>
+  </section>
+
+  <!-- 신체 정보 -->
+  <section class="flex flex-col gap-4 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold tracking-tight">신체 정보</h2>
+      <span class="text-[11px] text-[#86868b]">더 정확한 핏 추천에 사용돼요</span>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <span class="text-[13px] text-[#6e6e73] font-medium">성별</span>
+      <div class="grid grid-cols-2 gap-1 p-1 rounded-full bg-[#f5f5f7]" role="radiogroup" aria-label="성별">
+        <button type="button" role="radio" data-gender="female" class="gender-btn h-9 rounded-full text-[13px] transition-all">여성</button>
+        <button type="button" role="radio" data-gender="male" class="gender-btn h-9 rounded-full text-[13px] transition-all">남성</button>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center justify-between">
+        <label for="height" class="text-[13px] text-[#6e6e73] font-medium">키</label>
+        <div class="flex items-center gap-1.5">
+          <button type="button" data-step="height:-1" aria-label="키 1cm 줄이기" class="w-7 h-7 rounded-full bg-[#f5f5f7] flex items-center justify-center text-[#48484a] active:scale-90 transition-transform"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+          <span class="min-w-[64px] text-center text-[17px] font-semibold tracking-tight"><span id="heightVal">163</span><span class="text-[13px] text-[#86868b] font-medium"> cm</span></span>
+          <button type="button" data-step="height:1" aria-label="키 1cm 늘리기" class="w-7 h-7 rounded-full bg-[#f5f5f7] flex items-center justify-center text-[#48484a] active:scale-90 transition-transform"><span class="material-symbols-outlined text-[16px]">add</span></button>
+        </div>
+      </div>
+      <input type="range" id="height" min="140" max="200" step="1" value="163">
+      <div class="flex justify-between text-[10px] text-[#aeaeb2] -mt-1"><span>140</span><span>170</span><span>200</span></div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center justify-between">
+        <label for="weight" class="text-[13px] text-[#6e6e73] font-medium">몸무게 <span class="text-[11px] text-[#aeaeb2]">(선택)</span></label>
+        <div class="flex items-center gap-1.5">
+          <button type="button" data-step="weight:-1" aria-label="몸무게 1kg 줄이기" class="w-7 h-7 rounded-full bg-[#f5f5f7] flex items-center justify-center text-[#48484a] active:scale-90 transition-transform"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+          <span class="min-w-[64px] text-center text-[17px] font-semibold tracking-tight"><span id="weightVal">52</span><span class="text-[13px] text-[#86868b] font-medium"> kg</span></span>
+          <button type="button" data-step="weight:1" aria-label="몸무게 1kg 늘리기" class="w-7 h-7 rounded-full bg-[#f5f5f7] flex items-center justify-center text-[#48484a] active:scale-90 transition-transform"><span class="material-symbols-outlined text-[16px]">add</span></button>
+        </div>
+      </div>
+      <input type="range" id="weight" min="35" max="120" step="1" value="52">
+    </div>
+  </section>
+
+  <!-- 아바타 미리보기 -->
+  <section class="flex items-center gap-4 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <svg viewBox="0 0 120 260" class="w-[104px] h-[225px] shrink-0" aria-label="아바타 미리보기">
+      <defs>
+        <linearGradient id="hanbokTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7e3ff"/><stop offset="1" stop-color="#aac7ff"/></linearGradient>
+        <linearGradient id="hanbokSkirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0066cc"/><stop offset="1" stop-color="#30b0c7"/></linearGradient>
+      </defs>
+      <line x1="2" y1="250" x2="118" y2="250" stroke="#e5e5ea" stroke-width="1.5"/>
+      <g id="heightLine"><line x1="2" y1="18" x2="118" y2="18" stroke="#0066cc" stroke-width="1" stroke-dasharray="3 3" opacity=".55"/></g>
+      <g id="avatarBody">
+        <g id="shapeFemale">
+          <path d="M36 92 Q60 86 84 92 L104 246 Q60 254 16 246 Z" fill="url(#hanbokSkirt)"/>
+          <path d="M38 60 L22 104 L30 108 L42 72 Z M82 60 L98 104 L90 108 L78 72 Z" fill="url(#hanbokTop)"/>
+          <path d="M38 58 Q60 52 82 58 L86 94 Q60 100 34 94 Z" fill="url(#hanbokTop)"/>
+          <path d="M60 60 L52 82 M60 76 Q66 88 62 104 M60 76 Q57 90 54 100" stroke="#0066cc" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </g>
+        <g id="shapeMale" style="display:none">
+          <path d="M38 118 L58 118 L57 236 L40 236 Z M62 118 L82 118 L80 236 L63 236 Z" fill="url(#hanbokSkirt)"/>
+          <ellipse cx="48" cy="240" rx="11" ry="5" fill="#1d1d1f"/><ellipse cx="72" cy="240" rx="11" ry="5" fill="#1d1d1f"/>
+          <path d="M36 60 L20 116 L29 120 L41 74 Z M84 60 L100 116 L91 120 L79 74 Z" fill="url(#hanbokTop)"/>
+          <path d="M36 58 Q60 51 84 58 L88 124 Q60 130 32 124 Z" fill="url(#hanbokTop)"/>
+          <path d="M60 60 L50 88 M60 80 Q66 92 63 106" stroke="#0066cc" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </g>
+        <rect x="55" y="46" width="10" height="10" rx="3" fill="#f3d9c9"/>
+        <circle cx="60" cy="34" r="16" fill="#f3d9c9"/>
+        <circle cx="60" cy="34" r="16" fill="none" stroke="#fff" stroke-width="1.5"/>
+      </g>
+    </svg>
+    <div class="flex flex-col gap-2 min-w-0">
+      <span class="text-[11px] font-semibold text-[#0066cc] tracking-wider">AVATAR PREVIEW</span>
+      <span class="text-[18px] font-semibold tracking-[-0.02em] leading-tight" id="avatarType">슬림 내추럴</span>
+      <span class="text-[13px] text-[#6e6e73] leading-snug" id="avatarMeta">여성 · 163cm · 52kg</span>
+      <div class="flex flex-wrap gap-1.5 mt-1">
+        <span class="px-2 py-0.5 rounded-md bg-[#e8f2ff] text-[#0066cc] text-[11px] font-semibold" id="avatarFit">추천 · 풀 A라인</span>
+        <span class="px-2 py-0.5 rounded-md bg-[#f5f5f7] text-[#48484a] text-[11px] font-medium" id="avatarBmi">BMI 19.6</span>
+      </div>
+    </div>
+  </section>
+
+  <p class="flex items-start gap-1.5 px-1 text-[11px] text-[#86868b] leading-snug">
+    <span class="material-symbols-outlined text-[14px] mt-px">lock</span>
+    사진은 서버로 전송되지 않고 이 기기 안에서만 사용돼요. 분석이 끝나면 언제든 삭제할 수 있어요.
+  </p>
+</main>
+
+<!-- 하단 고정 CTA -->
+<div class="fixed bottom-0 inset-x-0 z-40 pb-safe bg-white/85 backdrop-blur-xl border-t border-black/[0.06]">
+  <div class="max-w-md mx-auto px-4 pt-3 pb-4 flex flex-col gap-1.5">
+    <span class="text-center text-[12px] text-[#86868b]" id="ctaHint">얼굴 · 전신 사진을 모두 등록해 주세요</span>
+    <button type="button" id="btnAnalyze" disabled class="w-full h-12 rounded-full bg-[#0066cc] text-white text-[16px] font-semibold flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(0,102,204,0.3)] active:scale-[0.98] transition-all disabled:bg-[#d2d2d7] disabled:shadow-none disabled:active:scale-100">
+      <span class="material-symbols-outlined text-[19px]">auto_awesome</span>체형 분석 시작
+    </button>
+  </div>
+</div>
+
+<!-- 분석 오버레이 -->
+<div id="scanOverlay" role="dialog" aria-modal="true" aria-label="체형 분석 중">
+  <div class="relative w-full max-w-[300px] aspect-[3/4] rounded-[24px] overflow-hidden bg-[#1c1c1e]">
+    <div id="scanPhoto" class="absolute inset-0 bg-no-repeat"></div>
+    <div class="absolute inset-0 bg-[#0066cc]/10"></div>
+    <div id="landmarks"></div>
+    <div class="scan-line"></div>
+  </div>
+  <div class="mt-6 w-full max-w-[300px] flex flex-col gap-2">
+    <div class="flex items-center justify-between text-white">
+      <span class="text-[14px] font-medium tracking-tight" id="scanStep">얼굴 랜드마크 추출 중…</span>
+      <span class="text-[14px] font-semibold text-[#5ac8fa]" id="scanPct">0%</span>
+    </div>
+    <div class="h-1.5 rounded-full bg-white/15 overflow-hidden"><div id="scanBar" class="h-full w-0 rounded-full bg-gradient-to-r from-[#0066cc] to-[#30b0c7]"></div></div>
+    <span class="text-[12px] text-white/50 text-center mt-1">TripFit AI가 체형과 퍼스널 컬러를 분석하고 있어요</span>
+  </div>
+</div>
+
+<div id="toast" class="toast px-4 py-2 rounded-full bg-[#1d1d1f]/90 backdrop-blur-xl text-white text-[13px] font-medium whitespace-nowrap shadow-lg" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const SAMPLE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuATY1R6CaBVMSLOuLxY18jz59zetqc94icBDzzhFVzIjmF90JCmYfqnDN5QyUmC30gPdI1gaSOC5qDaHPJPI5NWponqdXXh9j1fOFaOMeT4nlv3UK9j2V6ii92fMCzgCA7JvdLJV6IlXBbKgGDFj2A_l1odRmjLVv50K6GU7xV6cYbdNfawnf-L4aMDCZCqxCCnYHiNbDlI7Bkg4LFZrEp335xNJO8LvgWJ46gN6u8fHpNft_LtFD8_';
+  const AI_PAGE = '../ai/index.html';
+  const $ = (s) => document.querySelector(s);
+
+  const state = {
+    mode: 'face',
+    gender: 'female',
+    height: 163,
+    weight: 52,
+    photos: { face: null, body: null }, // { src, pos, size }
+    stream: null,
+    facing: 'user',
+  };
+
+  const MODE_INFO = {
+    face: { tip: '정면 · 밝은 곳', next: '전신 사진 찍기', status: '얼굴을 타원 안에 맞춰 주세요' },
+    body: { tip: '머리~발끝 · 2m 거리', next: '얼굴 사진 보기', status: '몸 전체를 실루엣에 맞춰 주세요' },
+  };
+
+  // ───── 토스트 ─────
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('is-show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('is-show'), 2000);
+  }
+
+  // ───── 촬영 모드 / 뷰파인더 ─────
+  function setStatus(text, color) {
+    $('#statusText').textContent = text;
+    $('#statusDot').style.background = color;
+  }
+
+  function renderViewfinder() {
+    const photo = state.photos[state.mode];
+    const live = !!state.stream && !photo;
+    document.querySelectorAll('.mode-tab').forEach((b) => {
+      const on = b.dataset.mode === state.mode;
+      b.setAttribute('aria-selected', on);
+      b.className = 'mode-tab h-9 rounded-full text-[13px] flex items-center justify-center gap-1 transition-all ' + (on ? 'bg-white text-[#1d1d1f] font-semibold shadow-sm' : 'text-[#6e6e73] font-medium');
+    });
+    $('#guideFace').classList.toggle('hidden', state.mode !== 'face' || !!photo);
+    $('#guideBody').classList.toggle('hidden', state.mode !== 'body' || !!photo);
+    $('#tipText').textContent = MODE_INFO[state.mode].tip;
+    $('#video').classList.toggle('hidden', !live);
+
+    const shot = $('#shot');
+    shot.classList.toggle('hidden', !photo);
+    if (photo) {
+      shot.style.backgroundImage = `url('${photo.src}')`;
+      shot.style.backgroundPosition = photo.pos;
+      shot.style.backgroundSize = photo.size;
+    }
+
+    $('#idlePanel').classList.toggle('hidden', live || !!photo);
+    $('#livePanel').classList.toggle('hidden', !live);
+    $('#livePanel').classList.toggle('flex', live);
+    $('#donePanel').classList.toggle('hidden', !photo);
+    $('#donePanel').classList.toggle('flex', !!photo);
+    $('#nextModeLabel').textContent = state.photos[other()] ? (state.mode === 'face' ? '전신 사진 보기' : '얼굴 사진 보기') : MODE_INFO[state.mode].next;
+
+    if (photo) setStatus(state.mode === 'face' ? '얼굴 사진 등록 완료' : '전신 사진 등록 완료', '#34c759');
+    else if (live) { setStatus(MODE_INFO[state.mode].status, '#ffcc00'); fakeDetect(); }
+    else setStatus('카메라 꺼짐', '#86868b');
+    if (!live) $('#detectBox').classList.remove('is-on');
+  }
+  const other = () => (state.mode === 'face' ? 'body' : 'face');
+
+  // 가짜 인식 박스: 카메라가 켜지고 잠시 뒤 '인식됨' 표시
+  let detectTimer;
+  function fakeDetect() {
+    const box = $('#detectBox');
+    box.classList.remove('is-on');
+    clearTimeout(detectTimer);
+    const r = state.mode === 'face' ? { l: 22, t: 16, w: 56, h: 60 } : { l: 26, t: 6, w: 48, h: 88 };
+    Object.assign(box.style, { left: r.l + '%', top: r.t + '%', width: r.w + '%', height: r.h + '%' });
+    detectTimer = setTimeout(() => {
+      if (!state.stream || state.photos[state.mode]) return;
+      box.classList.add('is-on');
+      setStatus(state.mode === 'face' ? '얼굴 인식됨 · 98%' : '전신 인식됨 · 96%', '#34c759');
+    }, 1300);
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    renderViewfinder();
+  }
+  document.querySelectorAll('.mode-tab').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  document.querySelectorAll('.slot').forEach((b) => b.addEventListener('click', () => {
+    setMode(b.dataset.slot);
+    $('#viewfinder').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }));
+
+  // ───── 카메라 ─────
+  async function startCamera() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast('이 브라우저에서는 카메라를 쓸 수 없어요. 앨범이나 샘플을 이용해 주세요');
+      return;
+    }
+    stopCamera();
+    setStatus('카메라 권한 요청 중…', '#ffcc00');
+    try {
+      state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.facing, width: { ideal: 1280 }, height: { ideal: 1706 } }, audio: false });
+      const v = $('#video');
+      v.srcObject = state.stream;
+      v.classList.toggle('is-mirrored', state.facing === 'user');
+      await v.play().catch(() => {});
+      renderViewfinder();
+    } catch (err) {
+      state.stream = null;
+      renderViewfinder();
+      toast(err && err.name === 'NotAllowedError' ? '카메라 권한이 거부됐어요. 앨범이나 샘플을 이용해 주세요' : '카메라를 찾을 수 없어요. 앨범이나 샘플을 이용해 주세요');
+    }
+  }
+  function stopCamera() {
+    if (state.stream) state.stream.getTracks().forEach((t) => t.stop());
+    state.stream = null;
+  }
+  $('#btnCamera').addEventListener('click', startCamera);
+  $('#btnFlip').addEventListener('click', () => {
+    state.facing = state.facing === 'user' ? 'environment' : 'user';
+    startCamera();
+  });
+  window.addEventListener('pagehide', stopCamera);
+
+  // 현재 프레임을 3:4로 잘라 저장
+  $('#btnShutter').addEventListener('click', () => {
+    const v = $('#video');
+    if (!v.videoWidth) return;
+    const W = 600, H = 800, c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    const scale = Math.max(W / v.videoWidth, H / v.videoHeight);
+    const dw = v.videoWidth * scale, dh = v.videoHeight * scale;
+    if (state.facing === 'user') { g.translate(W, 0); g.scale(-1, 1); }
+    g.drawImage(v, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    $('#flash').classList.remove('is-on'); void $('#flash').offsetWidth; $('#flash').classList.add('is-on');
+    setPhoto(state.mode, { src: c.toDataURL('image/jpeg', 0.85), pos: 'center', size: 'cover' });
+    toast(state.mode === 'face' ? '얼굴 사진을 찍었어요' : '전신 사진을 찍었어요');
+  });
+
+  // ───── 앨범 / 샘플 ─────
+  document.querySelectorAll('[data-action=upload]').forEach((b) => b.addEventListener('click', () => $('#fileInput').click()));
+  $('#fileInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      const max = 900, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      setPhoto(state.mode, { src: c.toDataURL('image/jpeg', 0.85), pos: 'center', size: 'cover' });
+      toast('앨범 사진을 등록했어요');
+    };
+    img.onerror = () => toast('이미지를 열 수 없어요');
+    img.src = URL.createObjectURL(file);
+  });
+  $('#btnSample').addEventListener('click', () => {
+    setPhoto('face', { src: SAMPLE, pos: '50% 13%', size: '260%' });
+    setPhoto('body', { src: SAMPLE, pos: '50% 18%', size: 'cover' });
+    toast('샘플 사진 2장을 등록했어요');
+  });
+
+  function setPhoto(slot, photo) {
+    state.photos[slot] = photo;
+    if (state.photos.face && state.photos.body) stopCamera();
+    renderViewfinder();
+    renderSlots();
+    renderAvatar();
+  }
+  $('#btnRetake').addEventListener('click', () => {
+    state.photos[state.mode] = null;
+    renderSlots();
+    renderAvatar();
+    if (state.stream) renderViewfinder(); else startCamera();
+  });
+  $('#btnNextMode').addEventListener('click', () => setMode(other()));
+
+  function renderSlots() {
+    document.querySelectorAll('.slot').forEach((b) => {
+      const p = state.photos[b.dataset.slot], thumb = b.querySelector('.slot-thumb'), st = b.querySelector('.slot-state');
+      thumb.style.backgroundImage = p ? `url('${p.src}')` : '';
+      thumb.style.backgroundPosition = p ? p.pos : '';
+      thumb.style.backgroundSize = p ? p.size : '';
+      thumb.querySelector('.material-symbols-outlined').style.display = p ? 'none' : '';
+      st.textContent = p ? '등록 완료' : '미등록';
+      st.className = 'slot-state text-[11px] ' + (p ? 'text-[#248a3d] font-semibold' : 'text-[#86868b]');
+      b.classList.toggle('border-[#34c759]', !!p);
+      b.classList.toggle('border-black/[0.06]', !p);
+    });
+    const ready = state.photos.face && state.photos.body;
+    $('#btnAnalyze').disabled = !ready;
+    $('#ctaHint').textContent = ready ? '준비 완료! 분석은 약 3초 걸려요' : `${!state.photos.face ? '얼굴' : '전신'} 사진을 등록해 주세요`;
+    $('#stepLabel').textContent = `사진 ${(state.photos.face ? 1 : 0) + (state.photos.body ? 1 : 0)}/2 · 신체 정보 입력`;
+  }
+
+  // ───── 신체 정보 / 아바타 ─────
+  function bodyType() {
+    const h = state.height, f = state.gender === 'female';
+    const bmi = state.weight / ((h / 100) ** 2);
+    let type, fit;
+    if (f) {
+      if (h < 158) { type = '쁘띠 내추럴'; fit = '하이웨스트 A라인'; }
+      else if (h < 168) { type = '슬림 내추럴'; fit = '풀 A라인'; }
+      else { type = '롱라인 스트레이트'; fit = '롱 H라인'; }
+    } else {
+      if (h < 170) { type = '컴팩트 스트레이트'; fit = '짧은 철릭'; }
+      else if (h < 180) { type = '스탠다드 스트레이트'; fit = '도포 스트레이트'; }
+      else { type = '롱라인 스트레이트'; fit = '롱 도포'; }
+    }
+    if (bmi < 18.5) type = type.replace(/^(\S+)/, '슬림 $1').replace('슬림 슬림', '슬림');
+    else if (bmi >= 25) type = '소프트 ' + type.split(' ').pop();
+    return { type, fit, bmi };
+  }
+
+  function renderAvatar() {
+    const { type, fit, bmi } = bodyType();
+    const s = state.height / 190;
+    const sx = Math.min(1.25, Math.max(0.85, Math.sqrt(bmi / 21)));
+    $('#avatarBody').style.transform = `scale(${(s * sx).toFixed(3)}, ${s.toFixed(3)})`;
+    $('#heightLine').style.transform = `translateY(${(250 - 232 * s - 18).toFixed(1)}px)`;
+    $('#shapeFemale').style.display = state.gender === 'female' ? '' : 'none';
+    $('#shapeMale').style.display = state.gender === 'male' ? '' : 'none';
+    $('#avatarType').textContent = type;
+    $('#avatarMeta').textContent = `${state.gender === 'female' ? '여성' : '남성'} · ${state.height}cm · ${state.weight}kg`;
+    $('#avatarFit').textContent = '추천 · ' + fit;
+    $('#avatarBmi').textContent = 'BMI ' + bmi.toFixed(1);
+
+    document.querySelectorAll('.gender-btn').forEach((b) => {
+      const on = b.dataset.gender === state.gender;
+      b.setAttribute('aria-checked', on);
+      b.className = 'gender-btn h-9 rounded-full text-[13px] transition-all ' + (on ? 'bg-white text-[#1d1d1f] font-semibold shadow-sm' : 'text-[#6e6e73] font-medium');
+    });
+    for (const k of ['height', 'weight']) {
+      const el = $('#' + k);
+      el.value = state[k];
+      el.style.setProperty('--p', ((state[k] - el.min) / (el.max - el.min) * 100) + '%');
+      $('#' + k + 'Val').textContent = state[k];
+    }
+  }
+
+  document.querySelectorAll('.gender-btn').forEach((b) => b.addEventListener('click', () => {
+    if (state.gender === b.dataset.gender) return;
+    state.gender = b.dataset.gender;
+    // 성별을 바꾸면 평균 체형으로 기본값 이동
+    if (state.gender === 'male') { state.height = Math.max(state.height, 174); state.weight = Math.max(state.weight, 70); }
+    else { state.height = Math.min(state.height, 163); state.weight = Math.min(state.weight, 52); }
+    renderAvatar();
+  }));
+  ['height', 'weight'].forEach((k) => $('#' + k).addEventListener('input', (e) => { state[k] = +e.target.value; renderAvatar(); }));
+  document.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => {
+    const [k, d] = b.dataset.step.split(':'), el = $('#' + k);
+    state[k] = Math.min(+el.max, Math.max(+el.min, state[k] + +d));
+    renderAvatar();
+  }));
+
+  $('#btnHelp').addEventListener('click', () => toast(state.mode === 'face' ? '모자·안경을 벗고 정면을 바라봐 주세요' : '몸에 붙는 옷을 입고 2m 떨어져 촬영해 주세요'));
+
+  // ───── 분석 시작 ─────
+  // 측정점 위치(%): 얼굴 · 어깨 · 허리 · 골반 · 발 (전신 사진 기준)
+  const LANDMARKS = [[50, 36], [47.5, 37], [52.5, 37], [50, 40.5], [41, 46], [59, 46], [43, 56], [57, 56], [38, 70], [62, 70], [43, 91], [57, 91]];
+  $('#btnAnalyze').addEventListener('click', () => {
+    stopCamera();
+    const { type, fit } = bodyType();
+    const body = state.photos.body;
+    $('#scanPhoto').style.backgroundImage = `url('${body.src}')`;
+    $('#scanPhoto').style.backgroundPosition = body.pos;
+    $('#scanPhoto').style.backgroundSize = body.size;
+    $('#landmarks').innerHTML = LANDMARKS.map(([x, y]) => `<span class="landmark" style="left:${x}%;top:${y}%"></span>`).join('');
+    $('#scanOverlay').classList.add('is-open');
+
+    const steps = [[0, '얼굴 랜드마크 추출 중…'], [25, '어깨 · 허리 · 골반 비율 측정 중…'], [55, `키 ${state.height}cm 기준 비율 보정 중…`], [80, '퍼스널 컬러 톤 분석 중…'], [100, '분석 완료!']];
+    const dots = [...document.querySelectorAll('.landmark')];
+    const start = performance.now(), DURATION = 3000;
+    (function tick(now) {
+      const pct = Math.max(0, Math.min(100, Math.round((now - start) / DURATION * 100)));
+      $('#scanBar').style.width = pct + '%';
+      $('#scanPct').textContent = pct + '%';
+      $('#scanStep').textContent = steps.filter(([at]) => pct >= at).pop()[1];
+      dots.forEach((d, i) => d.classList.toggle('is-on', pct >= (i + 1) * (85 / dots.length)));
+      if (pct < 100) return requestAnimationFrame(tick);
+      try {
+        const face = state.photos.face;
+        localStorage.setItem('tripfit-scan', JSON.stringify({
+          gender: state.gender, height: state.height, weight: state.weight, type, fit,
+          face: face && face.src.length < 300000 ? face : null, at: Date.now(),
+        }));
+      } catch (e) { /* 저장 공간이 없어도 결과 화면 이동은 계속 */ }
+      setTimeout(() => location.replace(`${AI_PAGE}?scan=done&type=${encodeURIComponent(type)}&fit=${encodeURIComponent(fit)}&gender=${state.gender}`), 450);
+    })(start);
+  });
+
+  renderViewfinder();
+  renderSlots();
+  renderAvatar();
+})();
+</script>
+</body>
+</html>

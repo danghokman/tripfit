@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>6. TripFit 예약하기 (booking.html)</title>
+<script src="../i18n.js"></script>
+<!-- iOS 홈 화면 앱(PWA) 설정 -->
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../app-icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../app-icon/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TripFit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', Inter, sans-serif; -webkit-font-smoothing: antialiased; background: #f5f5f7; color: #1d1d1f; }
+  body { overscroll-behavior: none; }
+  ::-webkit-scrollbar { display: none; }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+</style>
+<!-- 페이지 전환: 하단 탭바로 이동할 때만 탭 순서에 따라 옆으로 슬라이드 (View Transitions, 미지원 브라우저는 들어오는 쪽만 슬라이드) -->
+<style>
+  @view-transition { navigation: auto; }
+  header { view-transition-name: tf-header; }
+  nav.fixed { view-transition-name: tf-tabbar; }
+  ::view-transition-group(tf-header), ::view-transition-group(tf-tabbar) { animation-duration: .2s; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.32, .72, 0, 1); animation-fill-mode: both; }
+  /* 앞으로: 두 화면이 나란히 붙은 채 왼쪽으로 함께 넘어감 (이전 화면 → 왼쪽 밖, 새 화면 ← 오른쪽에서) */
+  html:active-view-transition-type(tf-forward)::view-transition-old(root) { animation-name: tf-push-out; }
+  html:active-view-transition-type(tf-forward)::view-transition-new(root) { animation-name: tf-slide-in; }
+  /* 뒤로: 두 화면이 나란히 붙은 채 오른쪽으로 함께 넘어감 */
+  html:active-view-transition-type(tf-back)::view-transition-old(root) { animation-name: tf-slide-out; }
+  html:active-view-transition-type(tf-back)::view-transition-new(root) { animation-name: tf-pop-in; }
+  @keyframes tf-slide-in { from { transform: translateX(100%); } }
+  @keyframes tf-push-out { to { transform: translateX(-100%); } }
+  @keyframes tf-slide-out { to { transform: translateX(100%); } }
+  @keyframes tf-pop-in { from { transform: translateX(-100%); } }
+  /* 미지원 브라우저용: 새 화면 본문만 옆에서 들어옴 */
+  html.tf-enter-forward main { animation: tf-fb-right .38s cubic-bezier(.32, .72, 0, 1) both; }
+  html.tf-enter-back main { animation: tf-fb-left .38s cubic-bezier(.32, .72, 0, 1) both; }
+  @keyframes tf-fb-right { from { transform: translateX(40px); opacity: 0; } }
+  @keyframes tf-fb-left { from { transform: translateX(-40px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    html.tf-enter-forward main, html.tf-enter-back main { animation: none; }
+  }
+</style>
+<script>
+  (function () {
+    // 하단 탭바로 이동할 때만 탭 순서대로 슬라이드. 그 외 이동(버튼·뒤로 가기·자동 이동)은 전환 없이 바로 바뀜
+    const ORDER = { home: 0, 'ai': 1, map: 2, shop: 3 };
+    const pageOf = (url) => { try { const parts = new URL(url, location.href).pathname.split('/'); return decodeURIComponent(parts[parts.length - 2] || ''); } catch (e) { return ''; } };
+    const KEY = 'tf-nav-dir';
+    const take = () => { try { const v = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); return v; } catch (e) { return null; } };
+
+    // 탭바 링크를 누른 순간 방향을 기록
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('nav.fixed a[href]');
+      if (!a) return;
+      const from = ORDER[pageOf(location.href)], to = ORDER[pageOf(a.href)];
+      if (from === undefined || to === undefined || from === to) return;
+      try { sessionStorage.setItem(KEY, to > from ? 'tf-forward' : 'tf-back'); } catch (err) { /* 무시 */ }
+    }, true);
+
+    // 지원 브라우저: 탭바 이동이면 방향 타입 지정, 아니면 전환 생략
+    window.addEventListener('pageswap', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      let dir = null;
+      try { dir = sessionStorage.getItem(KEY); } catch (err) { /* 무시 */ }
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+    window.addEventListener('pagereveal', (e) => {
+      if (!e.viewTransition) return;
+      e.viewTransition.ready.catch(() => {});
+      const dir = take();
+      if (dir) e.viewTransition.types.add(dir); else e.viewTransition.skipTransition();
+    });
+
+    // 미지원 브라우저: 탭바로 들어온 경우만 본문을 옆에서 슬라이드
+    if (!('CSSViewTransitionRule' in window)) {
+      const dir = take();
+      if (dir === 'tf-forward') document.documentElement.classList.add('tf-enter-forward');
+      if (dir === 'tf-back') document.documentElement.classList.add('tf-enter-back');
+    }
+  })();
+</script>
+<style>
+  .day { width: 52px; flex-shrink: 0; padding: 8px 0; border-radius: 14px; border: 1px solid #e0e0e0; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; transition: transform .12s, background-color .15s; }
+  .day:active { transform: scale(.95); }
+  .day.is-on { background: #0066cc; border-color: #0066cc; color: #fff; }
+  .day.is-on .day-w, .day.is-on .day-tag { color: rgba(255, 255, 255, .8) !important; }
+  .day:disabled { opacity: .35; cursor: not-allowed; }
+  .slot { height: 40px; border-radius: 12px; border: 1px solid #e0e0e0; background: #fff; font-size: 14px; font-weight: 500; color: #1d1d1f; cursor: pointer; transition: transform .12s; }
+  .slot:active { transform: scale(.96); }
+  .slot.is-on { border: 2px solid #0071e3; font-weight: 600; color: #0066cc; }
+  .slot:disabled { color: #c7c7cc; text-decoration: line-through; cursor: not-allowed; background: #fafafc; }
+  .opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; }
+  .opt + .opt { border-top: 1px solid rgba(0, 0, 0, .06); }
+  .check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #c7c7cc; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+  .is-on > .check { background: #0066cc; border-color: #0066cc; }
+  .pay { padding: 12px 8px; border-radius: 14px; border: 1px solid #e0e0e0; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; cursor: pointer; }
+  .pay.is-on { border: 2px solid #0071e3; padding: 11px 7px; font-weight: 600; }
+  .toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 95; transform: translate(-50%, -8px); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+  .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+  #payOverlay, #doneView { position: fixed; inset: 0; z-index: 80; display: none; }
+  #payOverlay.is-open { display: flex; }
+  #doneView.is-open { display: block; animation: doneIn .35s cubic-bezier(.2, .8, .2, 1); }
+  @keyframes doneIn { from { opacity: 0; transform: translateY(12px); } }
+  .spinner { width: 44px; height: 44px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, .25); border-top-color: #fff; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ticket-cut { position: relative; height: 0; border-top: 2px dashed rgba(0, 0, 0, .1); margin: 0 16px; }
+  .ticket-cut::before, .ticket-cut::after { content: ''; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: #f5f5f7; }
+  .ticket-cut::before { left: -28px; } .ticket-cut::after { right: -28px; }
+  .check-pop { animation: pop .5s cubic-bezier(.2, .8, .2, 1.5); }
+  @keyframes pop { from { transform: scale(0); } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="fixed top-0 w-full z-50 pt-safe bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
+  <div class="h-14 px-2 flex items-center justify-between max-w-md mx-auto">
+    <a href="../home/index.html" id="btnBack" aria-label="뒤로 가기" class="w-10 h-10 flex items-center justify-center rounded-full text-[#1d1d1f] hover:bg-black/[0.04] active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+    </a>
+    <span class="text-[16px] font-semibold tracking-[-0.02em]">예약하기</span>
+    <span class="w-10"></span>
+  </div>
+</header>
+
+<main class="pt-[70px] pb-40 px-4 max-w-md mx-auto flex flex-col gap-4">
+
+  <!-- 상품 요약 -->
+  <section class="flex items-center gap-3 p-3 rounded-[20px] bg-white border border-black/[0.05]">
+    <div id="itemImg" class="w-20 h-20 rounded-[14px] bg-[#f5f5f7] bg-cover bg-center shrink-0 flex items-center justify-center text-[#86868b]"></div>
+    <div class="flex flex-col min-w-0 flex-1">
+      <span class="text-[11px] font-semibold text-[#0066cc]" id="itemKind">한복 대여</span>
+      <span class="text-[15px] font-semibold leading-snug tracking-tight" id="itemName">상품</span>
+      <span class="text-[12px] text-[#86868b] mt-0.5" id="itemPlace">경복궁 본점 · 현장 수령</span>
+      <span class="text-[15px] font-bold mt-1"><span id="itemPrice">₩0</span><span class="text-[12px] text-[#86868b] font-normal" id="itemUnit"></span></span>
+    </div>
+  </section>
+
+  <!-- 날짜 -->
+  <section class="flex flex-col gap-2.5 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold tracking-tight">날짜</h2>
+      <span class="text-[12px] text-[#86868b]" id="monthLabel"></span>
+    </div>
+    <div id="days" class="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1" role="radiogroup" aria-label="날짜 선택"></div>
+    <p class="text-[11px] text-[#86868b]">주말은 ₩5,000이 추가돼요 · 회색 날짜는 예약 마감</p>
+  </section>
+
+  <!-- 시간 -->
+  <section class="flex flex-col gap-2.5 p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold tracking-tight">시간</h2>
+      <span class="text-[12px] text-[#86868b]" id="slotHint">날짜를 먼저 골라 주세요</span>
+    </div>
+    <div id="slots" class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="시간 선택"></div>
+  </section>
+
+  <!-- 인원 -->
+  <section class="flex items-center justify-between p-4 rounded-[20px] bg-white border border-black/[0.05]">
+    <div class="flex flex-col">
+      <h2 class="text-[15px] font-semibold tracking-tight">인원</h2>
+      <span class="text-[12px] text-[#86868b]">최대 6명 · 2인 이상 5% 할인</span>
+    </div>
+    <div class="flex items-center gap-1 rounded-full bg-[#f5f5f7] p-1">
+      <button type="button" id="minus" aria-label="인원 줄이기" class="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform"><span class="material-symbols-outlined text-[18px]">remove</span></button>
+      <span class="w-8 text-center text-[17px] font-semibold" id="people">1</span>
+      <button type="button" id="plus" aria-label="인원 늘리기" class="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform"><span class="material-symbols-outlined text-[18px]">add</span></button>
+    </div>
+  </section>
+
+  <!-- 추가 옵션 -->
+  <section class="flex flex-col gap-1.5">
+    <h3 class="px-1 text-[13px] font-semibold text-[#86868b]">추가 옵션 <span class="font-normal">(1인 기준)</span></h3>
+    <div class="rounded-[20px] bg-white border border-black/[0.05] overflow-hidden" id="opts"></div>
+  </section>
+
+  <!-- 결제 수단 -->
+  <section class="flex flex-col gap-1.5">
+    <h3 class="px-1 text-[13px] font-semibold text-[#86868b]">결제 수단</h3>
+    <div class="grid grid-cols-4 gap-2" id="pays"></div>
+  </section>
+
+  <!-- 금액 -->
+  <section class="flex flex-col gap-2 p-4 rounded-[20px] bg-white border border-black/[0.05] text-[14px]" id="summary"></section>
+
+  <p class="flex items-start gap-1.5 px-1 text-[11px] text-[#86868b] leading-snug">
+    <span class="material-symbols-outlined text-[14px] mt-px">info</span>
+    방문 2일 전까지 무료 취소 · 현장에서 실물 확인 후 다른 디자인으로 무료 변경 가능해요.
+  </p>
+</main>
+
+<!-- 하단 결제 버튼 -->
+<div class="fixed bottom-0 inset-x-0 z-40 pb-safe bg-white/85 backdrop-blur-xl border-t border-black/[0.06]">
+  <div class="max-w-md mx-auto px-4 pt-3 pb-4 flex flex-col gap-1.5">
+    <span class="text-center text-[12px] text-[#86868b]" id="ctaHint">날짜와 시간을 골라 주세요</span>
+    <button type="button" id="btnPay" disabled class="w-full h-12 rounded-full bg-[#0066cc] text-white text-[16px] font-semibold shadow-[0_4px_16px_rgba(0,102,204,0.3)] active:scale-[0.98] transition-all disabled:bg-[#d2d2d7] disabled:shadow-none disabled:active:scale-100">결제하기</button>
+  </div>
+</div>
+
+<!-- 결제 진행 -->
+<div id="payOverlay" class="items-center justify-center flex-col gap-4 bg-black/70 backdrop-blur-sm text-white" role="alert" aria-live="assertive">
+  <div class="spinner"></div>
+  <span class="text-[15px] font-medium" id="payStep">결제를 진행하고 있어요…</span>
+</div>
+
+<!-- 예약 완료 티켓 -->
+<div id="doneView" class="bg-[#f5f5f7] overflow-y-auto" role="dialog" aria-modal="true" aria-label="예약 완료">
+  <div class="max-w-md mx-auto px-4 pt-[calc(env(safe-area-inset-top,0px)+40px)] pb-10 flex flex-col items-center">
+    <div class="w-16 h-16 rounded-full bg-[#34c759] text-white flex items-center justify-center check-pop"><span class="material-symbols-outlined text-[38px]">check</span></div>
+    <h2 class="mt-4 text-[22px] font-bold tracking-[-0.02em]">예약이 완료됐어요</h2>
+    <p class="text-[13px] text-[#86868b] mt-1">방문 당일 아래 QR을 매장에 보여 주세요</p>
+
+    <div class="w-full mt-6 rounded-[24px] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div class="p-5 flex flex-col gap-1">
+        <span class="text-[11px] font-semibold text-[#0066cc]" id="tKind"></span>
+        <span class="text-[17px] font-semibold tracking-tight leading-snug" id="tName"></span>
+        <span class="text-[13px] text-[#86868b]" id="tPlace"></span>
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+          <div class="flex flex-col p-2 rounded-xl bg-[#f5f5f7]"><span class="text-[11px] text-[#86868b]">날짜</span><span class="text-[14px] font-semibold" id="tDate"></span></div>
+          <div class="flex flex-col p-2 rounded-xl bg-[#f5f5f7]"><span class="text-[11px] text-[#86868b]">시간</span><span class="text-[14px] font-semibold" id="tTime"></span></div>
+          <div class="flex flex-col p-2 rounded-xl bg-[#f5f5f7]"><span class="text-[11px] text-[#86868b]">인원</span><span class="text-[14px] font-semibold" id="tPeople"></span></div>
+        </div>
+      </div>
+      <div class="ticket-cut"></div>
+      <div class="p-5 flex flex-col items-center gap-2">
+        <canvas id="qr" width="168" height="168" class="w-[168px] h-[168px]" aria-label="입장 QR 코드"></canvas>
+        <span class="text-[13px] font-semibold tracking-[0.08em]" id="tNo"></span>
+        <span class="text-[12px] text-[#86868b]">결제 <b class="text-[#1d1d1f]" id="tPaid"></b> · <span id="tPay"></span></span>
+      </div>
+    </div>
+
+    <div class="w-full grid grid-cols-2 gap-2 mt-6">
+      <a href="../home/index.html" class="h-12 rounded-full bg-white border border-black/[0.06] flex items-center justify-center text-[15px] font-medium">홈으로</a>
+      <a href="../profile/index.html" class="h-12 rounded-full bg-[#0066cc] text-white flex items-center justify-center text-[15px] font-semibold">내 예약 보기</a>
+    </div>
+    <p class="text-[11px] text-[#aeaeb2] mt-4">데모 버전이라 실제 결제는 이루어지지 않았어요</p>
+  </div>
+</div>
+
+<div id="toast" class="toast px-4 py-2 rounded-full bg-[#1d1d1f]/90 backdrop-blur-xl text-white text-[13px] font-medium whitespace-nowrap shadow-lg" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const won = (n) => '₩' + Math.round(n).toLocaleString('ko-KR');
+  const q = new URLSearchParams(location.search);
+
+  // ───── 예약할 상품 (다른 화면의 예약 버튼이 주소로 넘겨줌) ─────
+  const KINDS = { rent: '한복 대여', pack: '체험 패키지', course: '여행 코스 패키지' };
+  const item = {
+    name: q.get('name') || '청자 옥빛 은박 당의',
+    price: +q.get('price') || 48000,
+    unit: q.get('unit') || '',
+    img: q.get('img') || '',
+    kind: KINDS[q.get('kind')] ? q.get('kind') : 'rent',
+    place: q.get('place') || '경복궁 미담한복 · 현장 수령',
+  };
+  $('#itemName').textContent = item.name;
+  $('#itemKind').textContent = KINDS[item.kind];
+  $('#itemPlace').textContent = item.place;
+  $('#itemPrice').textContent = won(item.price);
+  $('#itemUnit').textContent = item.unit;
+  if (item.img) $('#itemImg').style.backgroundImage = `url('${item.img.replace(/'/g, '%27')}')`;
+  else $('#itemImg').innerHTML = '<span class="material-symbols-outlined text-[30px]">checkroom</span>';
+
+  // 뒤로 가기: 들어온 화면으로
+  $('#btnBack').addEventListener('click', (e) => {
+    if (document.referrer && new URL(document.referrer).origin === location.origin) { e.preventDefault(); history.back(); }
+  });
+
+  // ───── 선택 상태 ─────
+  const OPTS = [
+    { id: 'hair', name: '헤어 · 댕기 연출', desc: '전문 스타일리스트 15분', price: 10000, icon: 'face_retouching_natural' },
+    { id: 'snap', name: '스냅 사진 추가', desc: '보정본 10장 · 30분 동행', price: 20000, icon: 'photo_camera' },
+    { id: 'acc', name: '노리개 · 꽃신 세트', desc: '한복 소품 풀세트', price: 5000, icon: 'local_florist' },
+  ];
+  const PAYS = [['card', '카드', 'credit_card'], ['kakao', '카카오페이', 'chat_bubble'], ['naver', '네이버페이', 'storefront'], ['toss', '토스페이', 'bolt']];
+  const SLOTS = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+  const state = { day: null, slot: null, people: 1, opts: new Set(), pay: 'card' };
+
+  // 날짜별 마감 여부·남은 자리는 날짜로 정해지는 가짜 값 (새로고침해도 같게)
+  const seed = (n) => { const x = Math.sin(n * 9301 + 49297) * 233280; return x - Math.floor(x); };
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i + 1);
+    const key = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    return { d, key, weekend: d.getDay() === 0 || d.getDay() === 6, full: seed(key) < 0.12 };
+  });
+  const W = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function renderDays() {
+    $('#days').innerHTML = days.map((x, i) => {
+      const on = state.day === i;
+      const tag = x.full ? '마감' : x.weekend ? '+5천' : i === 0 ? '내일' : '';
+      return `<button type="button" role="radio" aria-checked="${on}" class="day ${on ? 'is-on' : ''}" data-day="${i}" ${x.full ? 'disabled' : ''}>
+        <span class="day-w text-[11px] ${x.d.getDay() === 0 ? 'text-[#ff3b30]' : x.d.getDay() === 6 ? 'text-[#0066cc]' : 'text-[#86868b]'}">${W[x.d.getDay()]}</span>
+        <span class="text-[17px] font-semibold">${x.d.getDate()}</span>
+        <span class="day-tag text-[9px] h-3 ${x.full ? 'text-[#ff3b30]' : 'text-[#86868b]'}">${tag}</span>
+      </button>`;
+    }).join('');
+    const ref = days[state.day ?? 0].d;
+    $('#monthLabel').textContent = `${ref.getFullYear()}년 ${ref.getMonth() + 1}월`;
+  }
+  function renderSlots() {
+    if (state.day === null) {
+      $('#slots').innerHTML = SLOTS.map((t) => `<button type="button" class="slot" disabled style="text-decoration:none">${t}</button>`).join('');
+      return;
+    }
+    const key = days[state.day].key;
+    let left = 0;
+    $('#slots').innerHTML = SLOTS.map((t, i) => {
+      const full = seed(key + i * 7) < 0.25;
+      if (!full) left++;
+      const on = state.slot === t;
+      return `<button type="button" role="radio" aria-checked="${on}" class="slot ${on ? 'is-on' : ''}" data-slot="${t}" ${full ? 'disabled' : ''}>${t}</button>`;
+    }).join('');
+    $('#slotHint').textContent = `예약 가능 ${left}개 · 회색은 마감`;
+  }
+  function renderOpts() {
+    $('#opts').innerHTML = OPTS.map((o) => {
+      const on = state.opts.has(o.id);
+      return `<div class="opt ${on ? 'is-on' : ''}" role="checkbox" aria-checked="${on}" tabindex="0" data-opt="${o.id}">
+        <span class="material-symbols-outlined text-[20px] text-[#6e6e73]">${o.icon}</span>
+        <span class="flex flex-col flex-1 min-w-0"><span class="text-[14px] font-medium">${o.name}</span><span class="text-[12px] text-[#86868b]">${o.desc}</span></span>
+        <span class="text-[13px] font-semibold text-[#1d1d1f]">+${won(o.price)}</span>
+        <span class="check">${on ? '<span class="material-symbols-outlined text-[15px] text-white">check</span>' : ''}</span>
+      </div>`;
+    }).join('');
+  }
+  function renderPays() {
+    $('#pays').innerHTML = PAYS.map(([id, name, icon]) => `<button type="button" class="pay ${state.pay === id ? 'is-on' : ''}" data-pay="${id}" aria-pressed="${state.pay === id}">
+      <span class="material-symbols-outlined text-[20px] ${state.pay === id ? 'text-[#0066cc]' : 'text-[#6e6e73]'}">${icon}</span>${name}</button>`).join('');
+  }
+  function calc() {
+    const weekend = state.day !== null && days[state.day].weekend ? 5000 : 0;
+    const optSum = OPTS.filter((o) => state.opts.has(o.id)).reduce((s, o) => s + o.price, 0);
+    const base = (item.price + weekend + optSum) * state.people;
+    const group = state.people >= 2 ? Math.round(base * 0.05 / 100) * 100 : 0;
+    return { weekend, optSum, base, group, total: base - group };
+  }
+  function renderSummary() {
+    const c = calc();
+    const row = (k, v, cls = '') => `<div class="flex justify-between ${cls}"><span class="text-[#6e6e73]">${k}</span><span>${v}</span></div>`;
+    $('#summary').innerHTML =
+      row(`${item.name.length > 16 ? item.name.slice(0, 16) + '…' : item.name} × ${state.people}`, won(item.price * state.people)) +
+      (c.weekend ? row('주말 추가 요금', '+' + won(c.weekend * state.people)) : '') +
+      (c.optSum ? row('추가 옵션', '+' + won(c.optSum * state.people)) : '') +
+      (c.group ? row('2인 이상 할인 5%', '−' + won(c.group), 'text-[#ff3b30]') : '') +
+      `<div class="flex justify-between pt-2 mt-1 border-t border-black/[0.06] text-[16px] font-semibold"><span>결제 금액</span><span class="text-[#0066cc]">${won(c.total)}</span></div>`;
+    const ready = state.day !== null && state.slot;
+    $('#btnPay').disabled = !ready;
+    $('#btnPay').textContent = ready ? `${won(c.total)} 결제하기` : '결제하기';
+    $('#ctaHint').textContent = !ready ? (state.day === null ? '날짜와 시간을 골라 주세요' : '시간을 골라 주세요')
+      : `${days[state.day].d.getMonth() + 1}월 ${days[state.day].d.getDate()}일(${W[days[state.day].d.getDay()]}) ${state.slot} · ${state.people}명`;
+  }
+  const renderAll = () => { renderDays(); renderSlots(); renderOpts(); renderPays(); renderSummary(); };
+
+  $('#days').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-day]'); if (!b || b.disabled) return;
+    state.day = +b.dataset.day; state.slot = null; renderDays(); renderSlots(); renderSummary();
+  });
+  $('#slots').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-slot]'); if (!b || b.disabled) return;
+    state.slot = b.dataset.slot; renderSlots(); renderSummary();
+  });
+  $('#minus').addEventListener('click', () => { state.people = Math.max(1, state.people - 1); $('#people').textContent = state.people; renderSummary(); });
+  $('#plus').addEventListener('click', () => {
+    if (state.people >= 6) { toast('한 번에 최대 6명까지 예약할 수 있어요'); return; }
+    state.people++; $('#people').textContent = state.people; renderSummary();
+  });
+  const toggleOpt = (el) => { const id = el.dataset.opt; state.opts.has(id) ? state.opts.delete(id) : state.opts.add(id); renderOpts(); renderSummary(); };
+  $('#opts').addEventListener('click', (e) => { const o = e.target.closest('[data-opt]'); if (o) toggleOpt(o); });
+  $('#opts').addEventListener('keydown', (e) => { const o = e.target.closest('[data-opt]'); if (o && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleOpt(o); } });
+  $('#pays').addEventListener('click', (e) => { const b = e.target.closest('[data-pay]'); if (b) { state.pay = b.dataset.pay; renderPays(); } });
+
+  // ───── 결제 → 예약 완료 ─────
+  $('#btnPay').addEventListener('click', () => {
+    const c = calc(), d = days[state.day].d;
+    const no = 'TF-' + d.getFullYear().toString().slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + Math.floor(1000 + Math.random() * 9000);
+    const booking = {
+      no, name: item.name, kind: item.kind, place: item.place, img: item.img,
+      date: d.toISOString(), time: state.slot, people: state.people,
+      opts: OPTS.filter((o) => state.opts.has(o.id)).map((o) => o.name), total: c.total,
+      pay: PAYS.find((p) => p[0] === state.pay)[1], createdAt: Date.now(),
+    };
+    const overlay = $('#payOverlay');
+    overlay.classList.add('is-open');
+    $('#payStep').textContent = `${booking.pay}로 결제하고 있어요…`;
+    setTimeout(() => { $('#payStep').textContent = '예약을 확정하고 있어요…'; }, 900);
+    setTimeout(() => {
+      try {
+        const list = JSON.parse(localStorage.getItem('tripfit-bookings') || '[]');
+        list.unshift(booking);
+        localStorage.setItem('tripfit-bookings', JSON.stringify(list.slice(0, 20)));
+      } catch (e) { /* 저장 공간이 없어도 완료 화면은 표시 */ }
+      overlay.classList.remove('is-open');
+      showTicket(booking);
+    }, 1800);
+  });
+
+  function showTicket(b) {
+    const d = new Date(b.date);
+    $('#tKind').textContent = KINDS[b.kind];
+    $('#tName').textContent = b.name;
+    $('#tPlace').textContent = b.place;
+    $('#tDate').textContent = `${d.getMonth() + 1}.${d.getDate()}(${W[d.getDay()]})`;
+    $('#tTime').textContent = b.time;
+    $('#tPeople').textContent = b.people + '명';
+    $('#tNo').textContent = b.no;
+    $('#tPaid').textContent = won(b.total);
+    $('#tPay').textContent = b.pay;
+    drawQR($('#qr'), b.no);
+    $('#doneView').classList.add('is-open');
+    window.scrollTo(0, 0);
+  }
+
+  // 예약 번호로 만드는 QR 모양 그림 (시연용 · 실제 QR 코드는 아님)
+  function drawQR(canvas, text) {
+    const g = canvas.getContext('2d'), N = 25, cell = canvas.width / N;
+    let h = 2166136261; for (const ch of text) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+    const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 1000) / 1000; };
+    g.fillStyle = '#fff'; g.fillRect(0, 0, canvas.width, canvas.height);
+    g.fillStyle = '#1d1d1f';
+    const finder = (x, y) => {
+      g.fillRect(x * cell, y * cell, 7 * cell, 7 * cell);
+      g.fillStyle = '#fff'; g.fillRect((x + 1) * cell, (y + 1) * cell, 5 * cell, 5 * cell);
+      g.fillStyle = '#1d1d1f'; g.fillRect((x + 2) * cell, (y + 2) * cell, 3 * cell, 3 * cell);
+    };
+    const inFinder = (x, y) => (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!inFinder(x, y) && rnd() < 0.48) g.fillRect(x * cell, y * cell, cell, cell);
+    finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.classList.add('is-show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('is-show'), 1800);
+  }
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
